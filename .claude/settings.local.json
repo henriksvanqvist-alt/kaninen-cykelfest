@@ -79,7 +79,16 @@
       "Bash(vercel env:*)",
       "Bash(1:*)",
       "Bash(vercel --prod --yes)",
-      "Bash(vercel ls:*)"
+      "Bash(vercel ls:*)",
+      "Read(//Users/maxagent/.claude/skills/**)",
+      "Edit(/.claude/skills/database-auth/**)",
+      "Edit(/.claude/skills/ai-apis-like-chatgpt/**)",
+      "Edit(/.claude/skills/upload-assets/**)",
+      "Edit(/.claude/skills/frontend-app-design/**)",
+      "Bash(ls /Users/maxagent/Documents/Kaninen-web/mobile/src/app/\\\\\\(tabs\\\\\\)/)"
+    ],
+    "additionalDirectories": [
+      "/Users/maxagent/Documents/Kaninen-web/.claude/skills"
     ]
   }
 }

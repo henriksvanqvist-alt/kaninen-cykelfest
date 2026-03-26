@@ -2558,17 +2558,76 @@ export default function AdminScreen() {
                 const questions: DQuestion[] = quiz?.questions ?? [];
                 const courseLabel = course === 'förrätt' ? 'Förrätt' : course === 'varmrätt' ? 'Varmrätt' : 'Efterrätt';
                 const courseEmoji = course === 'förrätt' ? '🥗' : course === 'varmrätt' ? '🍖' : '🍮';
+                const courseUnlockDate = course === 'förrätt' ? ledtradForrattDate : course === 'varmrätt' ? ledtradVarmrattDate : ledtradEfterrattDate;
+                const courseSetDate = course === 'förrätt' ? setLedtradForrattDate : course === 'varmrätt' ? setLedtradVarmrattDate : setLedtradEfterrattDate;
+                const courseSettingKey = course === 'förrätt' ? 'unlock_ledtrad_forratt' : course === 'varmrätt' ? 'unlock_ledtrad_varmratt' : 'unlock_ledtrad_efterratt';
+                const isCourseUnlocked = new Date() >= courseUnlockDate;
+                const fmtD = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
                 return (
                   <View key={course} style={{ marginBottom: 4, borderBottomWidth: 1, borderBottomColor: '#EDE6D6' }}>
-                    <TouchableOpacity
-                      onPress={() => toggleSection(`course_${course}`)}
-                      style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}
-                    >
-                      <Text style={[styles.phaseLabel, { fontSize: 13, fontFamily: 'DMSans_700Bold', flex: 1 }]}>{courseEmoji} {courseLabel}</Text>
-                      {expanded[`course_${course}`] ? <ChevronUp size={16} color="#9A8E78" /> : <ChevronDown size={16} color="#9A8E78" />}
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
+                      <TouchableOpacity
+                        onPress={() => toggleSection(`course_${course}`)}
+                        style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}
+                      >
+                        <Text style={[styles.phaseLabel, { fontSize: 13, fontFamily: 'DMSans_700Bold', flex: 1 }]}>{courseEmoji} {courseLabel}</Text>
+                        {expanded[`course_${course}`] ? <ChevronUp size={16} color="#9A8E78" /> : <ChevronDown size={16} color="#9A8E78" />}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={async () => {
+                          const newDate = isCourseUnlocked ? new Date('2099-01-01T00:00') : new Date(Date.now() - 60000);
+                          courseSetDate(newDate);
+                          try { await api.post(`/api/cykelfest/settings/${courseSettingKey}`, { value: fmtD(newDate) }); } catch {}
+                        }}
+                        style={{ backgroundColor: isCourseUnlocked ? '#7A2E2E' : '#2A6B64', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, marginLeft: 10 }}
+                      >
+                        <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 11, color: '#fff' }}>{isCourseUnlocked ? '🔒 Lås' : '🔓 Lås upp'}</Text>
+                      </TouchableOpacity>
+                    </View>
                     {!!expanded[`course_${course}`] && (
                       <View style={{ paddingBottom: 16 }}>
+
+                    {/* Unlock time picker */}
+                    <View style={{ backgroundColor: '#EAE4D4', borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                      <Text style={[styles.formLabel, { marginBottom: 8 }]}>ÖPPNAS FÖR DELTAGARE KL</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        {(['h', 'min'] as const).map((field) => {
+                          const curVal = field === 'h' ? courseUnlockDate.getHours() : courseUnlockDate.getMinutes();
+                          const step = field === 'min' ? 5 : 1;
+                          const max = field === 'h' ? 23 : 59;
+                          const w = field === 'h' ? 32 : 44;
+                          const bump = (delta: number) => {
+                            const next = new Date(courseUnlockDate);
+                            const v = Math.max(0, Math.min(max, curVal + delta));
+                            if (field === 'h') next.setHours(v); else next.setMinutes(v);
+                            courseSetDate(next);
+                          };
+                          return (
+                            <React.Fragment key={field}>
+                              <View style={{ alignItems: 'center', gap: 4 }}>
+                                <TouchableOpacity style={{ width: w, height: 32, borderRadius: 8, backgroundColor: '#4A9E44', alignItems: 'center', justifyContent: 'center' }} onPress={() => bump(step)}>
+                                  <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 18, color: '#fff', lineHeight: 32 }}>+</Text>
+                                </TouchableOpacity>
+                                <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 15, color: '#2A2A2A', textAlign: 'center', width: w }}>{String(curVal).padStart(2,'0')}</Text>
+                                <TouchableOpacity style={{ width: w, height: 32, borderRadius: 8, backgroundColor: '#4A9E44', alignItems: 'center', justifyContent: 'center' }} onPress={() => bump(-step)}>
+                                  <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 18, color: '#fff', lineHeight: 32 }}>−</Text>
+                                </TouchableOpacity>
+                              </View>
+                              {field === 'h' && <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 22, color: '#2A2A2A' }}>:</Text>}
+                            </React.Fragment>
+                          );
+                        })}
+                        <TouchableOpacity
+                          onPress={async () => { try { await api.post(`/api/cykelfest/settings/${courseSettingKey}`, { value: fmtD(courseUnlockDate) }); } catch {} }}
+                          style={{ backgroundColor: '#2A6B64', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, marginLeft: 8 }}
+                        >
+                          <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#fff' }}>Spara</Text>
+                        </TouchableOpacity>
+                        <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 12, color: '#7A6B55', flex: 1 }}>
+                          {isCourseUnlocked ? '✓ Öppen nu' : `Låst tills kl ${String(courseUnlockDate.getHours()).padStart(2,'0')}:${String(courseUnlockDate.getMinutes()).padStart(2,'0')}`}
+                        </Text>
+                      </View>
+                    </View>
 
                     {/* Destination image URL */}
                     {editingImageCourse === course ? (

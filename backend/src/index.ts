@@ -6,8 +6,9 @@ import { cykelfestRouter } from "./routes/cykelfest.js";
 import { logger } from "hono/logger";
 import { prisma } from "./prisma.js";
 import ExcelJS from "exceljs";
-import { readFileSync, existsSync } from "fs";
-import { join } from "path";
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
+import { join, extname } from "path";
+import { randomUUID } from "crypto";
 
 // Resolve path to files shipped with the backend
 function backendFile(...parts: string[]): string {
@@ -29,11 +30,6 @@ const app = new Hono();
 const allowed = [
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-  /^https:\/\/[a-z0-9-]+\.dev\.vibecode\.run$/,
-  /^https:\/\/[a-z0-9-]+\.vibecode\.run$/,
-  /^https:\/\/[a-z0-9-]+\.vibecodeapp\.com$/,
-  /^https:\/\/[a-z0-9-]+\.vibecode\.dev$/,
-  /^https:\/\/vibecode\.dev$/,
   /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
   /^https:\/\/[a-z0-9-]+\.github\.io$/,
 ];
@@ -173,6 +169,9 @@ app.get("/manual", async (c) => {
 app.route("/api/sample", sampleRouter);
 app.route("/api/cykelfest", cykelfestRouter);
 
+const UPLOADS_DIR = backendFile("uploads");
+mkdirSync(UPLOADS_DIR, { recursive: true });
+
 app.post("/api/upload", async (c) => {
   const formData = await c.req.formData();
   const file = formData.get("file");
@@ -181,21 +180,41 @@ app.post("/api/upload", async (c) => {
     return c.json({ error: "No file provided" }, 400);
   }
 
-  const storageForm = new FormData();
-  storageForm.append("file", file);
+  const id = randomUUID();
+  const ext = extname(file.name) || "";
+  const filename = `${id}${ext}`;
+  const filepath = join(UPLOADS_DIR, filename);
 
-  const response = await fetch("https://storage.vibecodeapp.com/v1/files/upload", {
-    method: "POST",
-    body: storageForm,
+  const buffer = await file.arrayBuffer();
+  writeFileSync(filepath, new Uint8Array(buffer));
+
+  const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`;
+  const url = `${baseUrl}/uploads/${filename}`;
+
+  return c.json({
+    data: {
+      id,
+      url,
+      filename: file.name,
+      contentType: file.type,
+      sizeBytes: file.size,
+    },
   });
+});
 
-  if (!response.ok) {
-    const error = (await response.json()) as { error?: string };
-    return c.json({ error: error.error || "Upload failed" }, 500);
-  }
-
-  const result = (await response.json()) as { file: unknown };
-  return c.json({ data: result.file });
+app.get("/uploads/:filename", async (c) => {
+  const filename = c.req.param("filename");
+  const filepath = join(UPLOADS_DIR, filename);
+  if (!existsSync(filepath)) return c.json({ error: "Not found" }, 404);
+  const buf = readFileSync(filepath);
+  const ext = extname(filename).slice(1).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png",
+    gif: "image/gif", webp: "image/webp", mp4: "video/mp4",
+    mov: "video/quicktime", pdf: "application/pdf",
+  };
+  const contentType = mimeMap[ext] || "application/octet-stream";
+  return new Response(buf, { headers: { "Content-Type": contentType, "Cache-Control": "public, max-age=31536000" } });
 });
 
 export { app };
