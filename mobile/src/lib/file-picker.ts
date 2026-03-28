@@ -17,13 +17,34 @@ function checkSize(fileSize: number | undefined): boolean {
   return true;
 }
 
+function pickFileWeb(accept: string): Promise<PickedFile | null> {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) { resolve(null); return; }
+      if (!checkSize(file.size)) { resolve(null); return; }
+      const uri = URL.createObjectURL(file);
+      resolve({ uri, filename: file.name, mimeType: file.type });
+    };
+    input.oncancel = () => resolve(null);
+    // Handle case where user closes dialog without selecting
+    window.addEventListener('focus', function onFocus() {
+      window.removeEventListener('focus', onFocus);
+      setTimeout(() => { if (!input.files?.length) resolve(null); }, 500);
+    }, { once: true });
+    input.click();
+  });
+}
+
 export async function pickImage(): Promise<PickedFile | null> {
-  // On web, skip permission request — browsers block file pickers
-  // that aren't directly tied to the user interaction event
-  if (Platform.OS !== 'web') {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return null;
+  if (Platform.OS === 'web') {
+    return pickFileWeb('image/*');
   }
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!perm.granted) return null;
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 0.8,
@@ -35,10 +56,11 @@ export async function pickImage(): Promise<PickedFile | null> {
 }
 
 export async function pickVideo(): Promise<PickedFile | null> {
-  if (Platform.OS !== 'web') {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return null;
+  if (Platform.OS === 'web') {
+    return pickFileWeb('video/*');
   }
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!perm.granted) return null;
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Videos,
   });
@@ -49,6 +71,9 @@ export async function pickVideo(): Promise<PickedFile | null> {
 }
 
 export async function pickAudio(): Promise<PickedFile | null> {
+  if (Platform.OS === 'web') {
+    return pickFileWeb('audio/*');
+  }
   const DocumentPicker = await import('expo-document-picker');
   const result = await DocumentPicker.getDocumentAsync({
     type: ['audio/*'],
