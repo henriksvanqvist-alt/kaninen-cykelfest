@@ -61,24 +61,23 @@ export default function ProgramDetailScreen() {
   const [assignments, setAssignments] = useState<HostAssignment[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
-  const [backendStops, setBackendStops] = useState<Record<string, { description?: string; rules?: string; scoring?: string }>>({});
+  const cachedProgramStops = useAppStore((s) => s.programStops);
+  const setProgramStops = useAppStore((s) => s.setProgramStops);
 
+  // Använd cachad data — hämta bara om cachen är tom
   useEffect(() => {
+    if (Object.keys(cachedProgramStops).length > 0) return;
     const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
     if (!baseUrl) return;
     fetch(`${baseUrl}/api/cykelfest/program-stops`)
       .then((res) => res.json())
       .then((json) => {
         const arr: { id: string; description?: string; rules?: string; scoring?: string }[] = json?.data ?? json ?? [];
-        const record: Record<string, { description?: string; rules?: string; scoring?: string }> = {};
+        const record: Record<string, { id: string; description?: string; rules?: string; scoring?: string }> = {};
         for (const item of arr) {
-          record[item.id] = {
-            description: item.description || undefined,
-            rules: item.rules || undefined,
-            scoring: item.scoring || undefined,
-          };
+          record[item.id] = { id: item.id, description: item.description || undefined, rules: item.rules || undefined, scoring: item.scoring || undefined };
         }
-        setBackendStops(record);
+        setProgramStops(record);
       })
       .catch(() => {});
   }, []);
@@ -132,7 +131,7 @@ export default function ProgramDetailScreen() {
     );
   }
 
-  const merged = { ...stop, ...backendStops[stop.id] };
+  const merged = { ...stop, ...cachedProgramStops[stop.id] };
 
   const cardBg =
     stop.cardType === 'activity'

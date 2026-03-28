@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,7 +26,27 @@ function CardDescription({ stop }: { stop: ProgramStop }) {
 export default function SchemaScreen() {
   const insets = useSafeAreaInsets();
   const settings = useAppStore((s) => s.settings);
+  const programStops = useAppStore((s) => s.programStops);
+  const setProgramStops = useAppStore((s) => s.setProgramStops);
   const todayStr = new Date().toISOString().split('T')[0];
+
+  // Förhämta program-stops-data så att detaljvyn är omedelbar
+  useEffect(() => {
+    if (Object.keys(programStops).length > 0) return;
+    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+    if (!baseUrl) return;
+    fetch(`${baseUrl}/api/cykelfest/program-stops`)
+      .then((res) => res.json())
+      .then((json) => {
+        const arr: { id: string; description?: string; rules?: string; scoring?: string }[] = json?.data ?? json ?? [];
+        const record: Record<string, { id: string; description?: string; rules?: string; scoring?: string }> = {};
+        for (const item of arr) {
+          record[item.id] = { id: item.id, description: item.description || undefined, rules: item.rules || undefined, scoring: item.scoring || undefined };
+        }
+        setProgramStops(record);
+      })
+      .catch(() => {});
+  }, []);
 
   const forratUnlocked    = settings['unlock_steg5'] ? todayStr >= settings['unlock_steg5'] : false;
   const middagUnlocked    = settings['unlock_steg7'] ? todayStr >= settings['unlock_steg7'] : false;
@@ -137,9 +157,9 @@ const styles = StyleSheet.create({
   },
   dateHeading: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 18,
+    fontSize: 17,
     color: '#4A4030',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   card: {
     borderRadius: 12,
@@ -166,7 +186,7 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_600SemiBold',
     fontSize: 15,
     letterSpacing: 0,
-    color: '#3A3328',
+    color: '#5C3A1E',
     marginBottom: 6,
   },
   cardRow: {
