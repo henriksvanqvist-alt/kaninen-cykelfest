@@ -42,14 +42,13 @@ export default function LedtradDetailScreen() {
     <View style={styles.container} testID="ledtrad-detail-screen">
       <LinearGradient
         colors={config.colors}
-        style={[styles.header, { paddingTop: insets.top + 12 }]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-button">
           <ChevronLeft size={22} color="rgba(255,255,255,0.9)" />
         </TouchableOpacity>
-        <Text style={styles.headerEmoji}>{config.emoji}</Text>
+        <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>Ledtrådar {config.label}</Text>
-        <Text style={styles.headerSub}>{visibleClues.length} ledtråd{visibleClues.length !== 1 ? 'ar' : ''} tillgänglig{visibleClues.length !== 1 ? 'a' : ''}</Text>
       </LinearGradient>
 
       <ScrollView style={styles.scroll} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 32 }]}>
@@ -98,10 +97,20 @@ export default function LedtradDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
   header: { paddingBottom: 28, paddingHorizontal: 22 },
-  backBtn: { marginBottom: 12, alignSelf: 'flex-start' },
-  headerEmoji: { fontSize: 36, marginBottom: 6 },
-  headerTitle: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 32, color: '#F5EFE0' },
-  headerSub: { fontFamily: 'DMSans_400Regular', fontSize: 13, color: 'rgba(255,255,255,0.65)', marginTop: 4 },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(168,212,184,0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+  headerEyebrow: { fontFamily: 'SpaceMono_400Regular', fontSize: 10, letterSpacing: 2, color: 'rgba(255,255,255,0.7)', marginBottom: 2 },
+  headerTitle: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 26, color: '#F5EFE0', lineHeight: 30 },
   scroll: { flex: 1 },
   scrollContent: { padding: 20, gap: 14, paddingBottom: 40 },
   centerState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, gap: 12 },

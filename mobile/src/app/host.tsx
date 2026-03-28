@@ -84,7 +84,7 @@ export default function HostScreen() {
   if (!isLoggedIn) {
     return (
       <View style={styles.container} testID="host-login-screen">
-        <LinearGradient colors={['#1A3A6B', '#0F2347']} style={[styles.loginHeader, { paddingTop: insets.top + 12 }]}>
+        <LinearGradient colors={['#1A3A6B', '#0F2347']} style={[styles.loginHeader, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
             <ChevronLeft size={22} color="#A8D4B8" />
           </TouchableOpacity>
@@ -187,7 +187,7 @@ export default function HostScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content} testID="host-panel-screen">
       <LinearGradient
         colors={isTask ? ['#7A3E1A', '#4A2210'] : ['#1A3A6B', '#0F2347']}
-        style={[styles.header, { paddingTop: insets.top + 12 }]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
           <ChevronLeft size={22} color="#A8D4B8" />
@@ -339,21 +339,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
   content: { paddingBottom: 20 },
   loginHeader: {
-    paddingTop: 12,
-    paddingBottom: 32,
+    paddingTop: 8,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   loginEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
-    marginTop: 12,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
+    marginTop: 4,
   },
   loginTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 40,
+    fontSize: 26,
     color: '#F5EFE0',
   },
   loginSub: {
@@ -453,8 +453,8 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
   },
   header: {
-    paddingTop: 12,
-    paddingBottom: 24,
+    paddingTop: 8,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   backBtn: {
@@ -462,22 +462,23 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(168,212,184,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(168,212,184,0.2)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 36,
+    fontSize: 26,
     color: '#F5EFE0',
   },
   section: { marginHorizontal: 16, marginTop: 16 },

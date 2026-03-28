@@ -213,9 +213,9 @@ function BottomNav() {
   };
 
   return (
-    <View style={[styles.navOuter, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[styles.navOuter, { paddingBottom: insets.bottom }]}>
       {Platform.OS === 'web' ? (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(245, 239, 224, 0.96)' }]} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: '#F5EFE0' }]} />
       ) : (
         <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
       )}
@@ -247,8 +247,9 @@ const styles = StyleSheet.create({
   navOuter: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
-    paddingTop: 10,
+    paddingTop: 2,
     paddingHorizontal: 8,
+    backgroundColor: '#F5EFE0',
     overflow: 'hidden',
     shadowColor: '#2A2A2A',
     shadowOffset: { width: 0, height: -2 },
@@ -266,16 +267,16 @@ const styles = StyleSheet.create({
   },
   tabInner: {
     alignItems: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    minWidth: 52,
+    paddingVertical: 3,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    minWidth: 58,
     position: 'relative',
   },
   pillBg: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#1C4F4A',
-    borderRadius: 20,
+    borderRadius: 14,
   },
   tabInnerLocked: {
     opacity: 0.38,
@@ -311,7 +312,7 @@ export default function TabLayout() {
   return (
     <Tabs
       tabBar={() => <BottomNav />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="schema" />

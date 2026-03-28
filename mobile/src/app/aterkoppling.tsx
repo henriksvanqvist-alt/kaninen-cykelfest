@@ -135,7 +135,7 @@ export default function AterkopplingScreen() {
       {/* Header */}
       <LinearGradient
         colors={['#1C4F4A', '#2A6B64']}
-        style={[styles.header, { paddingTop: insets.top + 16 }]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-button">
           <ChevronLeft size={22} color="rgba(245,239,224,0.9)" />
@@ -255,23 +255,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5DFD1',
   },
   header: {
-    paddingBottom: 28,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   backBtn: {
     alignSelf: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 34,
+    fontSize: 26,
     color: '#F5EFE0',
   },
   scroll: {

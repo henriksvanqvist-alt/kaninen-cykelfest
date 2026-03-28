@@ -23,6 +23,7 @@ import {
 } from '@expo-google-fonts/space-mono';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 
 if (Platform.OS !== 'web') SplashScreen.preventAutoHideAsync();
 
@@ -82,10 +83,11 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#1C4F4A' }}>
         <KeyboardProvider>
           <StatusBar style="light" />
           <RootLayoutNav />
+          <PwaInstallPrompt />
         </KeyboardProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

@@ -43,7 +43,7 @@ export default function SchemaScreen() {
     <View style={styles.container} testID="schema-screen">
       <LinearGradient
         colors={['#1C4F4A', '#2A6B64']}
-        style={[styles.header, { paddingTop: insets.top + 12 }]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>Program</Text>
@@ -66,7 +66,7 @@ export default function SchemaScreen() {
               key={stop.id}
               testID={`program-card-${stop.id}`}
               onPress={() => router.push({ pathname: '/program/[id]', params: { id: stop.id } })}
-              style={{ marginBottom: isLast ? 0 : 6 }}
+              style={{ marginBottom: isLast ? 0 : 8 }}
             >
               <View style={[styles.card, { backgroundColor: bg }]}>
                 {/* Colored left accent bar */}
@@ -75,7 +75,7 @@ export default function SchemaScreen() {
                 {/* Card content */}
                 <View style={styles.cardContent}>
                   {/* Time at top-left */}
-                  <Text style={[styles.timeLabel, { color: stop.accentColor }]}>
+                  <Text style={styles.timeLabel}>
                     {stop.startTime}–{stop.endTime}
                   </Text>
 
@@ -111,28 +111,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5DFD1',
   },
   header: {
-    paddingBottom: 16,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 4,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 34,
+    fontSize: 26,
     color: '#F5EFE0',
-    lineHeight: 38,
+    lineHeight: 30,
   },
   scroll: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   dateHeading: {
     fontFamily: 'DMSerifDisplay_400Regular',
@@ -162,9 +163,10 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   timeLabel: {
-    fontFamily: 'SpaceMono_400Regular',
-    fontSize: 9,
-    letterSpacing: 0.3,
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 15,
+    letterSpacing: 0,
+    color: '#3A3328',
     marginBottom: 6,
   },
   cardRow: {
@@ -187,9 +189,9 @@ const styles = StyleSheet.create({
   },
   cardDesc: {
     fontFamily: 'DMSans_400Regular',
-    fontSize: 12,
+    fontSize: 14,
     color: '#6B6050',
-    lineHeight: 15,
+    lineHeight: 18,
   },
   cardRight: {
     alignItems: 'center',

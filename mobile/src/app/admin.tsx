@@ -473,7 +473,7 @@ export default function AdminScreen() {
   const [newDQQuestion, setNewDQQuestion] = useState('');
   const [newDQOptions, setNewDQOptions] = useState(['', '', '', '']);
   const [newDQCorrect, setNewDQCorrect] = useState(0);
-  const [newDQContentType, setNewDQContentType] = useState<'text' | 'image' | 'video'>('text');
+  const [newDQContentType, setNewDQContentType] = useState<'text' | 'image' | 'video' | 'audio'>('text');
   const [newDQContentText, setNewDQContentText] = useState('');
   const [newDQContentUrl, setNewDQContentUrl] = useState('');
 
@@ -482,7 +482,7 @@ export default function AdminScreen() {
   const [editDQQuestion, setEditDQQuestion] = useState('');
   const [editDQOptions, setEditDQOptions] = useState(['', '', '', '']);
   const [editDQCorrect, setEditDQCorrect] = useState(0);
-  const [editDQContentType, setEditDQContentType] = useState<'text' | 'image' | 'video'>('text');
+  const [editDQContentType, setEditDQContentType] = useState<'text' | 'image' | 'video' | 'audio'>('text');
   const [editDQContentText, setEditDQContentText] = useState('');
   const [editDQContentUrl, setEditDQContentUrl] = useState('');
 
@@ -830,10 +830,11 @@ export default function AdminScreen() {
       );
       setImportResult(result);
       if (result.imported > 0) {
-        loadTeamAssignments();
-        api.get<ParticipantFull[]>('/api/cykelfest/participants').then(data => {
+        await loadTeamAssignments();
+        try {
+          const data = await api.get<ParticipantFull[]>('/api/cykelfest/participants');
           if (Array.isArray(data)) setAllParticipants(data);
-        }).catch(() => {});
+        } catch {}
       }
     } catch (e) {
       setImportResult({ imported: 0, errors: ['Något gick fel vid import.'] });
@@ -856,6 +857,9 @@ export default function AdminScreen() {
         headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
         body: blob,
       });
+      if (!uploadResponse.ok && uploadResponse.headers.get('content-type')?.includes('text/html')) {
+        throw new Error(`Serverfel ${uploadResponse.status}`);
+      }
       const result = await uploadResponse.json();
       if (result.error) {
         setImportResult({ imported: 0, errors: [result.error.message ?? 'Okänt fel'] });
@@ -2670,11 +2674,11 @@ export default function AdminScreen() {
                     {/* Questions list */}
                     {questions.map((q, qIdx) => {
                       const opts: string[] = JSON.parse(q.options);
-                      const contentTypeIcon = q.contentType === 'image' ? '🖼' : q.contentType === 'video' ? '🎬' : '📝';
+                      const contentTypeIcon = q.contentType === 'image' ? '🖼' : q.contentType === 'video' ? '🎬' : q.contentType === 'audio' ? '🔊' : '📝';
                       return (
                         <View key={q.id} style={{ backgroundColor: '#F5EFE0', borderRadius: 10, padding: 12, marginBottom: 8 }}>
                           <TouchableOpacity
-                            onPress={() => { if (editingDQId === q.id) { setEditingDQId(null); } else { setEditingDQId(q.id); setEditDQQuestion(q.question); setEditDQOptions(JSON.parse(q.options)); setEditDQCorrect(q.correctAnswer); setEditDQContentType((q.contentType as 'text' | 'image' | 'video') ?? 'text'); setEditDQContentText(q.contentText ?? ''); setEditDQContentUrl(q.contentUrl ?? ''); } }}
+                            onPress={() => { if (editingDQId === q.id) { setEditingDQId(null); } else { setEditingDQId(q.id); setEditDQQuestion(q.question); setEditDQOptions(JSON.parse(q.options)); setEditDQCorrect(q.correctAnswer); setEditDQContentType((q.contentType as 'text' | 'image' | 'video' | 'audio') ?? 'text'); setEditDQContentText(q.contentText ?? ''); setEditDQContentUrl(q.contentUrl ?? ''); } }}
                             style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}
                           >
                             <Text style={styles.quizPollIndex}>{contentTypeIcon}</Text>
@@ -2685,10 +2689,10 @@ export default function AdminScreen() {
                             <View style={{ gap: 6, marginTop: 10 }}>
                               {/* Content type selector */}
                               <Text style={[styles.formLabel, { marginBottom: 6 }]}>INNEHÅLLSTYP</Text>
-                              <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10 }}>
-                                {(['text', 'image', 'video'] as const).map((ct) => (
-                                  <TouchableOpacity key={ct} onPress={() => setEditDQContentType(ct)} style={{ flex: 1, padding: 8, borderRadius: 8, alignItems: 'center', backgroundColor: editDQContentType === ct ? '#2A6B64' : '#EAE4D4' }}>
-                                    <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 12, color: editDQContentType === ct ? '#fff' : '#7A6B55' }}>{ct === 'text' ? '📝 Text' : ct === 'image' ? '🖼 Bild' : '🎬 Video'}</Text>
+                              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                                {(['text', 'image', 'video', 'audio'] as const).map((ct) => (
+                                  <TouchableOpacity key={ct} onPress={() => setEditDQContentType(ct)} style={{ flex: 1, minWidth: 60, padding: 8, borderRadius: 8, alignItems: 'center', backgroundColor: editDQContentType === ct ? '#2A6B64' : '#EAE4D4' }}>
+                                    <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 12, color: editDQContentType === ct ? '#fff' : '#7A6B55' }}>{ct === 'text' ? '📝 Text' : ct === 'image' ? '🖼 Bild' : ct === 'audio' ? '🔊 Ljud' : '🎬 Video'}</Text>
                                   </TouchableOpacity>
                                 ))}
                               </View>
@@ -2699,25 +2703,33 @@ export default function AdminScreen() {
                                 </>
                               ) : (
                                 <>
-                                  <Text style={[styles.formLabel, { marginBottom: 4 }]}>{editDQContentType === 'image' ? 'BILD-URL' : 'VIDEO-URL'}</Text>
+                                  <Text style={[styles.formLabel, { marginBottom: 4 }]}>{editDQContentType === 'image' ? 'BILD-URL' : editDQContentType === 'audio' ? 'LJUD-URL (MP3)' : 'VIDEO-URL'}</Text>
                                   <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
                                     <TextInput value={editDQContentUrl} onChangeText={setEditDQContentUrl} style={[styles.input, { flex: 1 }]} placeholder="https://..." placeholderTextColor="#B8B0A0" autoCapitalize="none" />
-                                    <TouchableOpacity
-                                      onPress={async () => {
-                                        setUploadingContentUrl(true);
-                                        try {
-                                          const file = editDQContentType === 'image' ? await pickImage() : await pickVideo();
-                                          if (file) {
-                                            const result = await uploadFile(file.uri, file.filename, file.mimeType);
-                                            setEditDQContentUrl(result.url);
-                                          }
-                                        } catch {} finally { setUploadingContentUrl(false); }
-                                      }}
-                                      style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
-                                    >
-                                      {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{editDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
-                                    </TouchableOpacity>
+                                    {editDQContentType !== 'audio' && (
+                                      <TouchableOpacity
+                                        onPress={async () => {
+                                          setUploadingContentUrl(true);
+                                          try {
+                                            const file = editDQContentType === 'image' ? await pickImage() : await pickVideo();
+                                            if (file) {
+                                              const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                              setEditDQContentUrl(result.url);
+                                            }
+                                          } catch {} finally { setUploadingContentUrl(false); }
+                                        }}
+                                        style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
+                                      >
+                                        {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{editDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
+                                      </TouchableOpacity>
+                                    )}
                                   </View>
+                                  {editDQContentType === 'audio' && (
+                                    <>
+                                      <Text style={[styles.formLabel, { marginBottom: 4 }]}>LEDTEXT (valfri)</Text>
+                                      <TextInput value={editDQContentText} onChangeText={setEditDQContentText} style={[styles.input, { marginBottom: 8 }]} placeholder="T.ex. Lyssna noga..." placeholderTextColor="#B8B0A0" />
+                                    </>
+                                  )}
                                 </>
                               )}
                               <Text style={[styles.formLabel, { marginBottom: 4 }]}>FRÅGA</Text>
@@ -2734,7 +2746,7 @@ export default function AdminScreen() {
                                 ))}
                               </View>
                               <View style={{ flexDirection: 'row', gap: 8 }}>
-                                <TouchableOpacity onPress={async () => { try { await api.put(`/api/cykelfest/destination-quizzes/questions/${q.id}`, { question: editDQQuestion, options: editDQOptions, correctAnswer: editDQCorrect, contentType: editDQContentType, contentText: editDQContentType === 'text' ? editDQContentText : null, contentUrl: editDQContentType !== 'text' ? editDQContentUrl : null }); setEditingDQId(null); await fetchDestQuizzes(); } catch {} }} style={{ flex: 1, backgroundColor: '#2A6B64', borderRadius: 8, padding: 8, alignItems: 'center' }}>
+                                <TouchableOpacity onPress={async () => { try { await api.put(`/api/cykelfest/destination-quizzes/questions/${q.id}`, { question: editDQQuestion, options: editDQOptions, correctAnswer: editDQCorrect, contentType: editDQContentType, contentText: (editDQContentType === 'text' || editDQContentType === 'audio') ? editDQContentText : null, contentUrl: editDQContentType !== 'text' ? editDQContentUrl : null }); setEditingDQId(null); await fetchDestQuizzes(); } catch {} }} style={{ flex: 1, backgroundColor: '#2A6B64', borderRadius: 8, padding: 8, alignItems: 'center' }}>
                                   <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#fff' }}>Spara</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={async () => { try { await api.delete(`/api/cykelfest/destination-quizzes/questions/${q.id}`); setEditingDQId(null); await fetchDestQuizzes(); } catch {} }} style={{ flex: 1, backgroundColor: '#FDECEA', borderRadius: 8, padding: 8, alignItems: 'center' }}>
@@ -2757,10 +2769,10 @@ export default function AdminScreen() {
                           <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#5A4E3A', marginBottom: 10 }}>Fråga {questions.length + 1} av 5</Text>
                           {/* Content type */}
                           <Text style={[styles.formLabel, { marginBottom: 6 }]}>INNEHÅLLSTYP</Text>
-                          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10 }}>
-                            {(['text', 'image', 'video'] as const).map((ct) => (
-                              <TouchableOpacity key={ct} onPress={() => setNewDQContentType(ct)} style={{ flex: 1, padding: 8, borderRadius: 8, alignItems: 'center', backgroundColor: newDQContentType === ct ? '#2A6B64' : '#F5EFE0' }}>
-                                <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 12, color: newDQContentType === ct ? '#fff' : '#7A6B55' }}>{ct === 'text' ? '📝 Text' : ct === 'image' ? '🖼 Bild' : '🎬 Video'}</Text>
+                          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                            {(['text', 'image', 'video', 'audio'] as const).map((ct) => (
+                              <TouchableOpacity key={ct} onPress={() => setNewDQContentType(ct)} style={{ paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, alignItems: 'center', backgroundColor: newDQContentType === ct ? '#2A6B64' : '#F5EFE0' }}>
+                                <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 12, color: newDQContentType === ct ? '#fff' : '#7A6B55' }}>{ct === 'text' ? '📝 Text' : ct === 'image' ? '🖼 Bild' : ct === 'video' ? '🎬 Video' : '🔊 Ljud'}</Text>
                               </TouchableOpacity>
                             ))}
                           </View>
@@ -2771,25 +2783,33 @@ export default function AdminScreen() {
                             </>
                           ) : (
                             <>
-                              <Text style={[styles.formLabel, { marginBottom: 4 }]}>{newDQContentType === 'image' ? 'BILD-URL' : 'VIDEO-URL'}</Text>
+                              <Text style={[styles.formLabel, { marginBottom: 4 }]}>{newDQContentType === 'image' ? 'BILD-URL' : newDQContentType === 'audio' ? 'LJUD-URL (MP3)' : 'VIDEO-URL'}</Text>
                               <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
                                 <TextInput value={newDQContentUrl} onChangeText={setNewDQContentUrl} style={[styles.input, { flex: 1 }]} placeholder="https://..." placeholderTextColor="#B8B0A0" autoCapitalize="none" />
-                                <TouchableOpacity
-                                  onPress={async () => {
-                                    setUploadingContentUrl(true);
-                                    try {
-                                      const file = newDQContentType === 'image' ? await pickImage() : await pickVideo();
-                                      if (file) {
-                                        const result = await uploadFile(file.uri, file.filename, file.mimeType);
-                                        setNewDQContentUrl(result.url);
-                                      }
-                                    } catch {} finally { setUploadingContentUrl(false); }
-                                  }}
-                                  style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
-                                >
-                                  {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{newDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
-                                </TouchableOpacity>
+                                {newDQContentType !== 'audio' && (
+                                  <TouchableOpacity
+                                    onPress={async () => {
+                                      setUploadingContentUrl(true);
+                                      try {
+                                        const file = newDQContentType === 'image' ? await pickImage() : await pickVideo();
+                                        if (file) {
+                                          const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                          setNewDQContentUrl(result.url);
+                                        }
+                                      } catch {} finally { setUploadingContentUrl(false); }
+                                    }}
+                                    style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
+                                  >
+                                    {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{newDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
+                                  </TouchableOpacity>
+                                )}
                               </View>
+                              {newDQContentType === 'audio' && (
+                                <>
+                                  <Text style={[styles.formLabel, { marginBottom: 4 }]}>LEDTEXT (valfri)</Text>
+                                  <TextInput value={newDQContentText} onChangeText={setNewDQContentText} style={[styles.input, { marginBottom: 8 }]} placeholder="T.ex. Vad låter det här som?" placeholderTextColor="#B8B0A0" />
+                                </>
+                              )}
                             </>
                           )}
                           <Text style={[styles.formLabel, { marginBottom: 4 }]}>FRÅGA</Text>
@@ -2813,7 +2833,7 @@ export default function AdminScreen() {
                                   await api.post(`/api/cykelfest/destination-quizzes/${encodeURIComponent(course)}/questions`, {
                                     question: newDQQuestion.trim(), options: newDQOptions.map(o => o.trim()), correctAnswer: newDQCorrect, orderIndex: questions.length,
                                     contentType: newDQContentType,
-                                    contentText: newDQContentType === 'text' ? newDQContentText.trim() || null : null,
+                                    contentText: (newDQContentType === 'text' || newDQContentType === 'audio') ? newDQContentText.trim() || null : null,
                                     contentUrl: newDQContentType !== 'text' ? newDQContentUrl.trim() || null : null,
                                   });
                                   setNewDQCourse(null); setNewDQQuestion(''); setNewDQOptions(['', '', '', '']); setNewDQCorrect(0); setNewDQContentType('text'); setNewDQContentText(''); setNewDQContentUrl('');

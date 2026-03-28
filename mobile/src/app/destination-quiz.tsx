@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
+import { Video, ResizeMode, Audio } from 'expo-av';
+import { Play, Pause } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +29,68 @@ const COURSE_CONFIG = {
 };
 
 const BLUR_LEVELS = [100, 90, 75, 55, 28, 0];
+
+function AudioPlayer({ url, label }: { url: string; label: string | null }) {
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      soundRef.current?.unloadAsync().catch(() => {});
+    };
+  }, [url]);
+
+  async function toggle() {
+    if (loading) return;
+    if (playing) {
+      await soundRef.current?.pauseAsync();
+      setPlaying(false);
+      return;
+    }
+    if (soundRef.current) {
+      await soundRef.current.setPositionAsync(0);
+      await soundRef.current.playAsync();
+      setPlaying(true);
+      return;
+    }
+    setLoading(true);
+    try {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: url },
+        { shouldPlay: true },
+        (status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            setPlaying(false);
+          }
+        }
+      );
+      soundRef.current = sound;
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <View style={styles.audioBox}>
+      <TouchableOpacity style={styles.audioBtn} onPress={toggle} activeOpacity={0.8}>
+        {loading ? (
+          <ActivityIndicator color="#fff" size="small" />
+        ) : playing ? (
+          <Pause size={22} color="#fff" />
+        ) : (
+          <Play size={22} color="#fff" />
+        )}
+        <Text style={styles.audioBtnText}>{playing ? 'Pausa' : 'Spela upp'}</Text>
+      </TouchableOpacity>
+      {label ? <Text style={styles.audioLabel}>{label}</Text> : null}
+    </View>
+  );
+}
 
 export default function DestinationQuizScreen() {
   const insets = useSafeAreaInsets();
@@ -173,8 +236,6 @@ export default function DestinationQuizScreen() {
           </View>
         ) : (
           <>
-            <View style={styles.separator} />
-
             <Text style={styles.sectionLabel}>PLATSEN DIT NI SKA</Text>
             <Text style={styles.competitionTitle}>Gruppaktivitet 1</Text>
 
@@ -229,6 +290,8 @@ export default function DestinationQuizScreen() {
                   <View style={styles.contentTextBox}>
                     <Text style={styles.contentText}>{activeQuestion.contentText}</Text>
                   </View>
+                ) : activeQuestion.contentType === 'audio' && activeQuestion.contentUrl ? (
+                  <AudioPlayer key={activeQuestion.id} url={activeQuestion.contentUrl} label={activeQuestion.contentText} />
                 ) : activeQuestion.contentType === 'image' && activeQuestion.contentUrl ? (
                   <View style={styles.contentMediaBox}>
                     <Image source={{ uri: activeQuestion.contentUrl }} style={styles.contentImage} resizeMode="cover" />
@@ -314,10 +377,21 @@ export default function DestinationQuizScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
   header: { paddingBottom: 28, paddingHorizontal: 22 },
-  backBtn: { alignSelf: 'flex-start', marginBottom: 10 },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(168,212,184,0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
   headerTitle: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 34, color: '#F5EFE0' },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 0 },
+  scrollContent: { paddingBottom: 0, paddingTop: 28 },
   centerState: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, paddingHorizontal: 22, gap: 12 },
   emptyTitle: { fontFamily: 'DMSerifDisplay_400Regular', fontSize: 22, color: '#2A2A2A' },
   emptySub: { fontFamily: 'DMSans_400Regular', fontSize: 14, color: '#7A7060', textAlign: 'center' },
@@ -331,7 +405,7 @@ const styles = StyleSheet.create({
   imagePlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   imagePlaceholderText: { fontFamily: 'DMSans_400Regular', fontSize: 14, color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' },
   imageProgress: { fontFamily: 'SpaceMono_400Regular', fontSize: 9.5, color: '#9A8E78', textAlign: 'center', marginTop: 8 },
-  questionsIngress: { fontFamily: 'DMSans_400Regular', fontSize: 13, color: '#7A6B55', lineHeight: 19, marginHorizontal: 22, marginTop: 8 },
+  questionsIngress: { fontFamily: 'DMSans_400Regular', fontSize: 16, color: '#7A6B55', lineHeight: 22, marginHorizontal: 22, marginTop: 8 },
   noQuestionsBox: { alignItems: 'center', paddingVertical: 32, paddingHorizontal: 22 },
   noQuestionsText: { fontFamily: 'DMSans_400Regular', fontSize: 14, color: '#9A8E78', textAlign: 'center' },
   // DONE
@@ -362,4 +436,12 @@ const styles = StyleSheet.create({
   contentMediaBox: { borderRadius: 10, overflow: 'hidden', marginBottom: 14, aspectRatio: 16 / 9 },
   contentImage: { width: '100%', height: '100%' },
   contentVideo: { width: '100%', height: '100%' },
+  audioBox: { marginBottom: 14, gap: 10 },
+  audioBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#1C4F4A', borderRadius: 12,
+    paddingVertical: 14, paddingHorizontal: 20,
+  },
+  audioBtnText: { fontFamily: 'DMSans_600SemiBold', fontSize: 15, color: '#fff' },
+  audioLabel: { fontFamily: 'DMSans_400Regular', fontSize: 13, color: '#7A6B55', fontStyle: 'italic', paddingHorizontal: 2 },
 });

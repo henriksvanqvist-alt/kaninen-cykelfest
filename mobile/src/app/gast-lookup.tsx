@@ -86,13 +86,12 @@ export default function GastLookupScreen() {
 
   return (
     <View style={styles.container} testID="gast-lookup-screen">
-      <LinearGradient colors={['#1A3A6B', '#0F2347']} style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <LinearGradient colors={['#1A3A6B', '#0F2347']} style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} testID="back-btn">
           <ChevronLeft size={22} color="#A8D4B8" />
         </TouchableOpacity>
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>Mitt nästa stopp</Text>
-        <Text style={styles.headerSub}>Hitta din värd och ankomsttid</Text>
       </LinearGradient>
 
       {showDetail && selectedName ? (
@@ -334,8 +333,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
 
   header: {
-    paddingTop: 12,
-    paddingBottom: 28,
+    paddingTop: 8,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   backBtn: {
@@ -343,30 +342,24 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(168,212,184,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(168,212,184,0.2)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 28,
+    fontFamily: 'DMSerifDisplay_400Regular',
+    fontSize: 26,
     color: '#F5EFE0',
-    letterSpacing: -0.3,
-  },
-  headerSub: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 4,
   },
 
   listContainer: { flex: 1 },

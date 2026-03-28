@@ -11,8 +11,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/lib/api/api';
 import { useAppStore } from '@/lib/state/store';
+
+function pollVoteKey(pollId: string) {
+  return `poll_voted_choice_${pollId}`;
+}
 
 interface NewsItem {
   id: string;
@@ -58,28 +63,38 @@ export default function NyhetDetailScreen() {
   const [localVotes, setLocalVotes] = useState<Poll['votes']>([]);
 
   useEffect(() => {
-    Promise.all([
-      api.get<NewsItem[]>('/api/cykelfest/news'),
-      api.get<Poll[]>('/api/cykelfest/polls'),
-    ]).then(([newsData, pollsData]) => {
-      const found = (newsData ?? []).find((n) => n.id === id);
-      if (found) {
-        setItem(found);
-        if (found.type === 'omrostning') {
-          // Match poll by pollId if available, fall back to title matching for old items
-          const matchedPoll = found.pollId
-            ? (pollsData ?? []).find((p) => p.id === found.pollId)
-            : (pollsData ?? []).find((p) => p.correctAnswer === null && p.question === found.title);
-          if (matchedPoll) {
-            setPoll(matchedPoll);
-            setLocalVotes(matchedPoll.votes ?? []);
+    (async () => {
+      try {
+        const [newsData, pollsData] = await Promise.all([
+          api.get<NewsItem[]>('/api/cykelfest/news'),
+          api.get<Poll[]>('/api/cykelfest/polls'),
+        ]);
+        const found = (newsData ?? []).find((n) => n.id === id);
+        if (found) {
+          setItem(found);
+          if (found.type === 'omrostning') {
+            const matchedPoll = found.pollId
+              ? (pollsData ?? []).find((p) => p.id === found.pollId)
+              : (pollsData ?? []).find((p) => p.correctAnswer === null && p.question === found.title);
+            if (matchedPoll) {
+              setPoll(matchedPoll);
+              setLocalVotes(matchedPoll.votes ?? []);
+              const saved = await AsyncStorage.getItem(pollVoteKey(matchedPoll.id));
+              if (saved !== null) {
+                setChoice(parseInt(saved, 10));
+                setVoted(true);
+              }
+            }
           }
+        } else {
+          setError(true);
         }
-      } else {
+      } catch {
         setError(true);
+      } finally {
+        setLoading(false);
       }
-    }).catch(() => setError(true))
-      .finally(() => setLoading(false));
+    })();
   }, [id]);
 
   async function handleVote() {
@@ -95,6 +110,7 @@ export default function NyhetDetailScreen() {
         const updatedPoll = (updated ?? []).find((p) => p.id === poll.id);
         if (updatedPoll) setLocalVotes(updatedPoll.votes ?? []);
       }
+      await AsyncStorage.setItem(pollVoteKey(poll.id), String(choice));
       setVoted(true);
     } catch (e) {
       console.error('Vote error', e);
@@ -140,8 +156,8 @@ export default function NyhetDetailScreen() {
           </View>
         ) : (
           <View style={{ gap: 16 }}>
-            {/* Nyhetskort */}
-            <View style={styles.card}>
+            {/* Nyhetskort — dölj för omröstning (visas i pollCard istället) */}
+            {item.type !== 'omrostning' ? <View style={styles.card}>
               <View style={styles.topRow}>
                 <View style={[styles.emojiWrap, item.type === 'omrostning' && styles.emojiWrapVote]}>
                   <Text style={styles.emoji}>{getEmoji(item.type)}</Text>
@@ -167,7 +183,7 @@ export default function NyhetDetailScreen() {
               {item.body.length > 0 ? (
                 <Text style={styles.body}>{item.body}</Text>
               ) : null}
-            </View>
+            </View> : null}
 
             {/* Omröstningskort */}
             {item.type === 'omrostning' && poll ? (
@@ -179,6 +195,9 @@ export default function NyhetDetailScreen() {
               >
                 <Text style={styles.pollLabel}>🗳️ OMRÖSTNING</Text>
                 <Text style={styles.pollQuestion}>{poll.question}</Text>
+                {item.body.length > 0 ? (
+                  <Text style={styles.pollBody}>{item.body}</Text>
+                ) : null}
 
                 {voted ? (
                   // Visa staplar
@@ -205,7 +224,7 @@ export default function NyhetDetailScreen() {
                     <Text style={styles.pollVoteCount}>{localVotes.length} har röstat</Text>
                     <TouchableOpacity
                       style={styles.pollVoteBtn}
-                      onPress={() => { setVoted(false); setChoice(null); }}
+                      onPress={() => { setVoted(false); setChoice(null); if (poll) AsyncStorage.removeItem(pollVoteKey(poll.id)); }}
                     >
                       <Text style={styles.pollVoteBtnText}>Rösta igen</Text>
                     </TouchableOpacity>
@@ -308,4 +327,5 @@ const styles = StyleSheet.create({
   pollVoteBtn: { backgroundColor: '#A8D4B8', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 },
   pollVoteBtnDisabled: { opacity: 0.35 },
   pollVoteBtnText: { fontFamily: 'DMSans_600SemiBold', fontSize: 12.5, color: '#1C4F4A' },
+  pollBody: { fontFamily: 'DMSans_400Regular', fontSize: 13.5, color: 'rgba(245,239,224,0.75)', lineHeight: 20, marginBottom: 8 },
 });

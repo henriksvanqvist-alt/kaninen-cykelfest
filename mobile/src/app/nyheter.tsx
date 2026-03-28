@@ -24,16 +24,10 @@ interface NewsItem {
   createdAt: string;
 }
 
-function formatDate(dateStr: string): string {
+function newsDateParts(dateStr: string): { day: string; month: string } {
   const d = new Date(dateStr);
-  return `${d.getDate()} ${['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'][d.getMonth()]} ${d.getFullYear()}`;
-}
-
-function getEmoji(type: string): string {
-  if (type === 'viktig') return '🐇';
-  if (type === 'omrostning') return '🗳️';
-  if (type === 'nyhet') return '🐇';
-  return '🐇';
+  const month = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'][d.getMonth()];
+  return { day: String(d.getDate()), month };
 }
 
 function isNew(dateStr: string): boolean {
@@ -157,23 +151,23 @@ export default function NyheterScreen() {
                 >
                   {index > 0 ? <View style={styles.cardDivider} /> : null}
                   <View style={styles.cardRow}>
-                    <View style={[styles.emojiWrap, item.type === 'omrostning' && styles.emojiWrapVote]}>
-                      <Text style={styles.emoji}>{getEmoji(item.type)}</Text>
-                      {showBadge ? <View style={styles.newDot} /> : null}
+                    <View style={styles.dateBadge}>
+                      <Text style={styles.dateBadgeDay}>{newsDateParts(item.createdAt).day}</Text>
+                      <Text style={styles.dateBadgeMonth}>{newsDateParts(item.createdAt).month}</Text>
                     </View>
                     <View style={styles.cardContent}>
                       <View style={styles.cardTitleRow}>
+                        {showBadge ? <View style={styles.newDot} /> : null}
                         <Text style={styles.cardTitle}>{item.title}</Text>
-                        {item.type === 'omrostning' ? (
-                          <View style={styles.voteChip}>
-                            <Text style={styles.voteChipText}>Rösta</Text>
-                          </View>
-                        ) : null}
+                        <View style={item.type === 'viktig' ? styles.chipViktig : item.type === 'omrostning' ? styles.voteChip : item.type === 'info' ? styles.chipInfo : styles.chipNyhet}>
+                          <Text style={item.type === 'viktig' ? styles.chipViktigText : item.type === 'omrostning' ? styles.voteChipText : item.type === 'info' ? styles.chipInfoText : styles.chipNyhetText}>
+                            {item.type === 'viktig' ? 'Viktig' : item.type === 'omrostning' ? 'Rösta' : item.type === 'info' ? 'Info' : 'Nyhet'}
+                          </Text>
+                        </View>
                       </View>
                       {item.body.length > 0 ? (
                         <Text style={styles.cardBody} numberOfLines={2}>{item.body}</Text>
                       ) : null}
-                      <Text style={styles.cardDate}>{formatDate(item.createdAt)}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -216,11 +210,12 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(168,212,184,0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(168,212,184,0.2)',
+    marginBottom: 10,
+    alignSelf: 'flex-start',
   },
   headerTextBlock: {
     gap: 3,
@@ -300,9 +295,28 @@ const styles = StyleSheet.create({
   },
   cardRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     padding: 16,
     gap: 12,
+  },
+  dateBadge: {
+    width: 30,
+    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dateBadgeDay: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 14,
+    color: '#2A2A2A',
+    lineHeight: 16,
+  },
+  dateBadgeMonth: {
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 8,
+    color: '#9A8E78',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
 
   // EMOJI BADGE
@@ -323,15 +337,12 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   newDot: {
-    position: 'absolute',
-    top: -3,
-    right: -3,
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#E05A2B',
-    borderWidth: 1.5,
-    borderColor: '#fff',
+    flexShrink: 0,
+    marginTop: 3,
   },
   emoji: {
     fontSize: 17,
@@ -366,9 +377,45 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   voteChipText: {
-    fontFamily: 'SpaceMono_400Regular',
+    fontFamily: 'DMSans_600SemiBold',
     fontSize: 9,
     color: '#5B21B6',
+  },
+  chipNyhet: {
+    backgroundColor: '#D4EDE4',
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    flexShrink: 0,
+  },
+  chipNyhetText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 9,
+    color: '#1C6B40',
+  },
+  chipViktig: {
+    backgroundColor: '#FFE4B0',
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    flexShrink: 0,
+  },
+  chipViktigText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 9,
+    color: '#8A4400',
+  },
+  chipInfo: {
+    backgroundColor: '#DEF0FF',
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    flexShrink: 0,
+  },
+  chipInfoText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 9,
+    color: '#1A5276',
   },
   cardBody: {
     fontFamily: 'DMSans_400Regular',

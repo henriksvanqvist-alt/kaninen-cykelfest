@@ -20,10 +20,9 @@ export default function SOSScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]} testID="sos-screen">
       {/* Header */}
-      <LinearGradient colors={['#8B1A1A', '#C0392B']} style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <LinearGradient colors={['#8B1A1A', '#C0392B']} style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>SOS</Text>
-        <Text style={styles.headerSub}>Alltid tillgänglig</Text>
       </LinearGradient>
 
       {/* Ring arrangören */}
@@ -113,28 +112,22 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
   content: { paddingBottom: 0 },
   header: {
-    paddingTop: 16,
-    paddingBottom: 24,
+    paddingTop: 8,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 48,
+    fontSize: 26,
     color: '#fff',
-    lineHeight: 50,
-  },
-  headerSub: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.65)',
-    marginTop: 4,
+    lineHeight: 30,
   },
   section: {
     marginHorizontal: 16,

@@ -146,7 +146,7 @@ export default function ProgramDetailScreen() {
       {/* Gradient header */}
       <LinearGradient
         colors={['#1C4F4A', '#2A6B64']}
-        style={[styles.header, { paddingTop: insets.top + 8 }]}
+        style={[styles.header, { paddingTop: insets.top + 6 }]}
       >
         {/* Back button */}
         <TouchableOpacity
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    paddingBottom: 28,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   backBtn: {
@@ -332,11 +332,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     alignSelf: 'flex-start',
   },
   headerContent: {
-    gap: 6,
+    gap: 4,
   },
   accentDot: {
     width: 8,
@@ -350,15 +350,15 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 34,
+    fontSize: 26,
     color: '#F5EFE0',
-    lineHeight: 38,
+    lineHeight: 30,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
+    color: 'rgba(255,255,255,0.7)',
     marginTop: 2,
   },
 

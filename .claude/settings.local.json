@@ -100,7 +100,20 @@
       "Bash(curl -s \"https://kaninen-cykelfest-krj8izdw0-clawmax12-langs-projects.vercel.app/api/cykelfest/polls\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''✓ Backend live, polls:'''', len\\(d.get\\(''''data'''',[]\\)\\)\\)\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''✓ polls:'''', len\\(d.get\\(''''data'''',[]\\)\\)\\)\")",
-      "Bash(curl -s https://kaninen-cykelfest-api.vercel.app/api/cykelfest/polls)"
+      "Bash(curl -s https://kaninen-cykelfest-api.vercel.app/api/cykelfest/polls)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(cp ../.vercel/project.json .vercel/project.json)",
+      "Bash(cp /Users/maxagent/Documents/Kaninen-web/mobile/dist/.vercel/project.json /tmp/dist-project.json)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"Add kaninenscykelfest.com to CORS allowlist:*)",
+      "Bash(curl -s -I -H \"Origin: https://kaninenscykelfest.com\" https://kaninen-cykelfest-api.vercel.app/api/cykelfest/teams)",
+      "Bash(curl -s https://kaninen-cykelfest-api.vercel.app/api/cykelfest/clues)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d[''''data''''], indent=2\\)\\)\")",
+      "Bash(vercel domains:*)",
+      "Read(//Users/maxagent/Documents/Kaninen-web/**)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "Bash(vercel alias:*)"
     ],
     "additionalDirectories": [
       "/Users/maxagent/Documents/Kaninen-web/.claude/skills"

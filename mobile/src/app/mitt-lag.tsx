@@ -10,6 +10,7 @@ import {
   Pressable,
   Platform,
   KeyboardAvoidingView,
+  type DimensionValue,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -126,7 +127,7 @@ type TeamCardProps = {
   index: number;
   highlighted: boolean;
   dimmed: boolean;
-  cardWidth: number;
+  cardWidth: DimensionValue;
   onPress: () => void;
 };
 
@@ -157,16 +158,9 @@ function TeamCard({ team, index, highlighted, dimmed, cardWidth, onPress }: Team
       testID={`team-card-${team.name}`}
     >
       <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
-        <LinearGradient
-          colors={team.colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.card,
-            { width: cardWidth },
-            highlighted && styles.cardHighlighted,
-          ]}
-        >
+        <View style={[styles.card, { width: cardWidth }, highlighted && styles.cardHighlighted]}>
+          {/* Colored left accent bar */}
+          <View style={[styles.accentBar, { backgroundColor: team.colors[0] }]} />
           <Text style={styles.cardEmoji}>{team.emoji}</Text>
           <Text style={styles.cardName}>{team.name}</Text>
           {highlighted ? (
@@ -178,7 +172,7 @@ function TeamCard({ team, index, highlighted, dimmed, cardWidth, onPress }: Team
               <Text style={styles.dittLagText}>Mitt lag!</Text>
             </Animated.View>
           ) : null}
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -189,7 +183,7 @@ export default function MittLagScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: screenW } = useWindowDimensions();
-  const cardWidth = screenW - 48;
+  const cardWidth = '100%' as const;
   const [query, setQuery] = useState<string>('');
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
@@ -242,12 +236,12 @@ export default function MittLagScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <LinearGradient colors={['#1A3A2A', '#2A4A3A']} style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { top: insets.top + 14 }]}>
-          <ChevronLeft size={22} color="#A8D4B8" />
+      <LinearGradient colors={['#1A3A2A', '#2A4A3A']} style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ChevronLeft size={22} color="#A8D4B8" strokeWidth={2} />
         </TouchableOpacity>
+        <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>Mitt lag</Text>
-        <Text style={styles.headerSub}>Kaninens Cykelfest 2026</Text>
       </LinearGradient>
 
       <ScrollView
@@ -344,36 +338,33 @@ export default function MittLagScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAF7F2' },
   header: {
-    paddingTop: 16,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+    paddingBottom: 10,
+    paddingHorizontal: 22,
   },
   backBtn: {
-    position: 'absolute',
-    left: 16,
-    top: 14,
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(168,212,184,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(168,212,184,0.2)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+  },
+  headerEyebrow: {
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 10,
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 30,
+    fontSize: 26,
     color: '#F5F0E8',
-    marginBottom: 4,
-  },
-  headerSub: {
-    fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
-    color: '#A8D4B8',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
+    lineHeight: 30,
   },
   content: {
     padding: 24,
@@ -474,23 +465,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 18,
-    paddingVertical: 14,
+    paddingVertical: 12,
     gap: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E8E0CC',
+    shadowColor: '#2A2A2A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
     overflow: 'hidden',
   },
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 5,
+  },
   cardHighlighted: {
-    borderWidth: 2.5,
-    borderColor: '#F5D87A',
-    shadowColor: '#F5D87A',
+    borderWidth: 2,
+    borderColor: '#D4AF37',
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   dittLagBadge: {
     position: 'absolute',
@@ -509,12 +510,12 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   cardEmoji: {
-    fontSize: 28,
+    fontSize: 22,
   },
   cardName: {
     fontFamily: 'DMSerifDisplay_400Regular',
     fontSize: 20,
-    color: '#F5F0E8',
+    color: '#1A1A1A',
     flex: 1,
   },
 });

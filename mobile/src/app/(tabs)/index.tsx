@@ -75,6 +75,12 @@ function formatDate(dateStr: string): string {
   return `${d.getDate()} ${['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'][d.getMonth()]}`;
 }
 
+function newsDateParts(dateStr: string): { day: string; month: string } {
+  const d = new Date(dateStr);
+  const month = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'][d.getMonth()];
+  return { day: String(d.getDate()), month };
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -382,7 +388,7 @@ export default function HomeScreen() {
       {/* NYHETER */}
       <Animated.View entering={FadeIn.delay(150)} style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>📢 MEDDELANDE FRÅN KANINEN</Text>
+          <Text style={styles.sectionLabel}>MEDDELANDE FRÅN KANINEN</Text>
           <TouchableOpacity onPress={() => router.push('/nyheter' as any)} testID="visa-allt-button">
             <Text style={styles.sectionLink}>Se alla →</Text>
           </TouchableOpacity>
@@ -405,18 +411,20 @@ export default function HomeScreen() {
                     }}
                     testID={`news-card-${item.id}`}
                   >
-                    <View style={styles.timelineDot}>
-                      <Text style={styles.timelineDotNum}>🐇</Text>
-                      {showBadge ? <View style={styles.newsNewDot} /> : null}
+                    <View style={styles.newsDateBadge}>
+                      <Text style={styles.newsDateDay}>{newsDateParts(item.createdAt).day}</Text>
+                      <Text style={styles.newsDateMonth}>{newsDateParts(item.createdAt).month}</Text>
                     </View>
                     <View style={styles.timelineContent}>
-                      <Text style={styles.timelineTitle} numberOfLines={2}>{item.title}</Text>
-                      <Text style={styles.timelineSub}>{formatDate(item.createdAt)}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        {showBadge ? <View style={styles.newsNewDot} /> : null}
+                        <Text style={styles.timelineTitle} numberOfLines={2}>{item.title}</Text>
+                      </View>
                     </View>
                     <View style={styles.timelineRowRight}>
-                      <View style={item.type === 'viktig' ? styles.newsChipViktig : item.type === 'omrostning' ? styles.newsChipOmrostning : styles.newsChipNyhet}>
-                        <Text style={item.type === 'viktig' ? styles.newsChipViktigText : item.type === 'omrostning' ? styles.newsChipOmrostningText : styles.newsChipNyhetText}>
-                          {item.type === 'viktig' ? 'Viktig' : item.type === 'omrostning' ? 'Rösta' : 'Nyhet'}
+                      <View style={item.type === 'viktig' ? styles.newsChipViktig : item.type === 'omrostning' ? styles.newsChipOmrostning : item.type === 'info' ? styles.newsChipInfo : styles.newsChipNyhet}>
+                        <Text style={item.type === 'viktig' ? styles.newsChipViktigText : item.type === 'omrostning' ? styles.newsChipOmrostningText : item.type === 'info' ? styles.newsChipInfoText : styles.newsChipNyhetText}>
+                          {item.type === 'viktig' ? 'Viktig' : item.type === 'omrostning' ? 'Rösta' : item.type === 'info' ? 'Info' : 'Nyhet'}
                         </Text>
                       </View>
                       <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
@@ -442,12 +450,12 @@ export default function HomeScreen() {
                   }}
                   testID={`news-card-${item.id}`}
                 >
-                  <View style={styles.timelineDot}>
-                    <Text style={styles.timelineDotNum}>🐇</Text>
+                  <View style={styles.newsDateBadge}>
+                    <Text style={styles.newsDateDay}>{newsDateParts(item.createdAt).day}</Text>
+                    <Text style={styles.newsDateMonth}>{newsDateParts(item.createdAt).month}</Text>
                   </View>
                   <View style={styles.timelineContent}>
                     <Text style={styles.timelineTitle} numberOfLines={2}>{item.title}</Text>
-                    <Text style={styles.timelineSub}>idag</Text>
                   </View>
                   <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
                 </Pressable>
@@ -460,7 +468,7 @@ export default function HomeScreen() {
       {/* KALENDARIUM */}
       <Animated.View entering={FadeIn.delay(200)} style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>📅 VAD HÄNDER HÄRNÄST?</Text>
+          <Text style={styles.sectionLabel}>VAD HÄNDER NU?</Text>
           <TouchableOpacity testID="visa-allt-kalendarium-button" onPress={() => router.push('/kalendarium' as any)}>
             <Text style={styles.sectionLink}>Visa alla steg →</Text>
           </TouchableOpacity>
@@ -483,7 +491,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.timelineRowRight}>
             <View style={steg1Unlocked ? styles.badgeDone : styles.badgeLocked}>
-              <Text style={steg1Unlocked ? styles.badgeDoneText : styles.badgeLockedText}>{steg1Unlocked ? 'Klart' : 'Kommande'}</Text>
+              <Text style={steg1Unlocked ? styles.badgeDoneText : styles.badgeLockedText}>{steg1Unlocked ? 'Avslutat' : 'Stängt'}</Text>
             </View>
             <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
           </View>
@@ -514,7 +522,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.timelineRowRight}>
             <View style={steg2Unlocked ? styles.badgePagaende : styles.badgeLocked}>
-              <Text style={steg2Unlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{steg2Unlocked ? 'Pågående' : 'Kommande'}</Text>
+              <Text style={steg2Unlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{steg2Unlocked ? 'Öppet' : 'Stängt'}</Text>
             </View>
             <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
           </View>
@@ -538,14 +546,14 @@ export default function HomeScreen() {
             </View>
           )}
           <View style={styles.timelineContent}>
-            <Text style={lagUnlocked ? styles.timelineTitleActive : styles.timelineTitle}>Information om Mitt lag</Text>
+            <Text style={lagUnlocked ? styles.timelineTitleActive : styles.timelineTitle}>Info om mitt lag</Text>
             <Text style={lagUnlocked ? styles.timelineSubActive : styles.timelineSub} numberOfLines={1}>
-              {lagUnlocked ? 'Öppet — se mitt lag' : `Tillgänglig från ${lagDateLabel}`}
+              {lagUnlocked ? 'Se mitt lag och lagmedlemmar' : `Tillgänglig från ${lagDateLabel}`}
             </Text>
           </View>
           <View style={styles.timelineRowRight}>
             <View style={lagUnlocked ? styles.badgePagaende : styles.badgeLocked}>
-              <Text style={lagUnlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{lagUnlocked ? 'Öppet' : 'Kommande'}</Text>
+              <Text style={lagUnlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{lagUnlocked ? 'Öppet' : 'Stängt'}</Text>
             </View>
             <ChevronRight size={14} color={lagUnlocked ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'} />
           </View>
@@ -570,18 +578,18 @@ export default function HomeScreen() {
           )}
           <View style={styles.timelineContent}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Text style={vardinfoUnlocked ? styles.timelineTitleActive : styles.timelineTitle}>Mitt värdskap</Text>
+              <Text style={vardinfoUnlocked ? styles.timelineTitleActive : styles.timelineTitle}>Info om mitt värdskap</Text>
               {hostHasUpdate && vardinfoUnlocked ? (
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935' }} />
               ) : null}
             </View>
             <Text style={vardinfoUnlocked ? styles.timelineSubActive : styles.timelineSub} numberOfLines={1}>
-              {vardinfoUnlocked ? 'Öppet — se mitt värdskap' : `Pinkod skickas separat. Tillgänglig från ${vardinfoDateLabel}.`}
+              {vardinfoUnlocked ? 'Se vad som gäller för mitt värdskap' : `Pinkod skickas separat. Tillgänglig från ${vardinfoDateLabel}.`}
             </Text>
           </View>
           <View style={styles.timelineRowRight}>
             <View style={vardinfoUnlocked ? styles.badgePagaende : styles.badgeLocked}>
-              <Text style={vardinfoUnlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{vardinfoUnlocked ? 'Öppet' : 'Kommande'}</Text>
+              <Text style={vardinfoUnlocked ? styles.badgePagaendeText : styles.badgeLockedText}>{vardinfoUnlocked ? 'Öppet' : 'Stängt'}</Text>
             </View>
             <ChevronRight size={14} color={vardinfoUnlocked ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'} />
           </View>
@@ -592,7 +600,7 @@ export default function HomeScreen() {
       {/* LAGKORT */}
       <Animated.View entering={FadeIn.delay(250)} style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>🏆 MITT LAG</Text>
+          <Text style={styles.sectionLabel}>MITT LAG</Text>
         </View>
         <TouchableOpacity onPress={() => lagUnlocked ? router.push('/mitt-lag') : null} activeOpacity={lagUnlocked ? 0.85 : 1}>
           <LinearGradient
@@ -614,7 +622,7 @@ export default function HomeScreen() {
       {activePoll != null ? (
   <Animated.View entering={FadeIn.delay(300)} style={styles.section}>
     <View style={styles.sectionHeader}>
-      <Text style={styles.sectionLabel}>🎯 KANINENS QUIZ</Text>
+      <Text style={styles.sectionLabel}>KANINENS QUIZ</Text>
     </View>
     <LinearGradient
       colors={['#2A5A54', '#1C4F4A']}
@@ -811,7 +819,6 @@ export default function HomeScreen() {
       {/* VÄRDINFORMATION */}
       <Animated.View entering={FadeIn.delay(300)} style={styles.quickLinks}>
         <View style={styles.quickLinksHeader}>
-          <Home size={11} color="#9A8E78" />
           <Text style={styles.quickLinksLabel}>MITT VÄRDSKAP</Text>
           {hostHasUpdate && vardinfoUnlocked ? (
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935', marginLeft: 4 }} />
@@ -839,7 +846,7 @@ export default function HomeScreen() {
       <Animated.View entering={FadeIn.delay(325)} style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.sectionLabel}>🐇 FRÅGA KANINEN</Text>
+            <Text style={styles.sectionLabel}>FRÅGA KANINEN</Text>
             {faqHasNewAnswer ? (
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#E53935', marginLeft: 5 }} />
             ) : null}
@@ -895,7 +902,7 @@ export default function HomeScreen() {
       {/* ÅTERKOPPLING */}
       <Animated.View entering={FadeIn.delay(340)} style={[styles.section, !aterkopplingUnlocked && { opacity: 0.4 }]}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>✍️ ÅTERKOPPLING</Text>
+          <Text style={styles.sectionLabel}>ÅTERKOPPLING</Text>
         </View>
         <TouchableOpacity
           style={styles.aterkopplingCard}
@@ -1298,34 +1305,34 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   badgePagaende: {
-    backgroundColor: '#FFF3CD',
+    backgroundColor: '#DFF0E8',
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    width: 68,
+    paddingVertical: 4,
     alignItems: 'center',
   },
   badgePagaendeText: {
     fontFamily: 'SpaceMono_400Regular',
     fontSize: 9,
-    color: '#92600A',
+    color: '#1C6B40',
   },
   badgeDone: {
-    backgroundColor: '#DFF0E8',
+    backgroundColor: '#E8E0D0',
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    width: 68,
+    paddingVertical: 4,
     alignItems: 'center',
   },
   badgeDoneText: {
     fontFamily: 'SpaceMono_400Regular',
     fontSize: 9,
-    color: '#1C6B40',
+    color: '#7A6B55',
   },
   badgeActive: {
     backgroundColor: 'rgba(28,79,74,0.1)',
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    width: 68,
+    paddingVertical: 4,
     alignItems: 'center',
   },
   badgeActiveText: {
@@ -1334,10 +1341,10 @@ const styles = StyleSheet.create({
     color: '#1C4F4A',
   },
   badgeLocked: {
-    backgroundColor: '#F0EAD8',
+    backgroundColor: '#EDE6D6',
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    width: 68,
+    paddingVertical: 4,
     alignItems: 'center',
   },
   badgeLockedText: {
@@ -1359,9 +1366,9 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 9.3,
-    color: '#9A8E78',
-    letterSpacing: 0.5,
+    fontSize: 10.5,
+    color: '#5A5145',
+    letterSpacing: 1.5,
   },
   sectionLink: {
     fontFamily: 'DMSans_500Medium',
@@ -1395,15 +1402,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   newsNewDot: {
-    position: 'absolute',
-    top: -3,
-    right: -3,
-    width: 9,
-    height: 9,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#E05A2B',
-    borderWidth: 1.5,
-    borderColor: '#fff',
+    flexShrink: 0,
+    marginTop: 2,
+    borderWidth: 0,
+    borderColor: 'transparent',
+  },
+  newsDateBadge: {
+    width: 30,
+    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  newsDateDay: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 14,
+    color: '#2A2A2A',
+    lineHeight: 16,
+  },
+  newsDateMonth: {
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 8,
+    color: '#9A8E78',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   newsText: {
     flex: 1,
@@ -1741,9 +1766,9 @@ const styles = StyleSheet.create({
   },
   quickLinksLabel: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 9,
-    color: '#9A8E78',
-    letterSpacing: 1,
+    fontSize: 10.5,
+    color: '#5A5145',
+    letterSpacing: 1.5,
   },
   quickLinkBtnPrimary: {
     borderRadius: 14,
@@ -2028,38 +2053,51 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   newsChipNyhet: {
-    backgroundColor: '#E0F0E8',
+    backgroundColor: '#D4EDE4',
     borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    width: 54,
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   newsChipNyhetText: {
-    fontFamily: 'DMSans_500Medium',
+    fontFamily: 'DMSans_600SemiBold',
     fontSize: 10,
-    color: '#2A6B64',
+    color: '#1C6B40',
   },
   newsChipViktig: {
-    backgroundColor: '#FFF0D0',
+    backgroundColor: '#FFE4B0',
     borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    width: 54,
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   newsChipViktigText: {
-    fontFamily: 'DMSans_500Medium',
+    fontFamily: 'DMSans_600SemiBold',
     fontSize: 10,
-    color: '#A05800',
+    color: '#8A4400',
   },
   newsChipOmrostning: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#E4DDFF',
     borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    width: 54,
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   newsChipOmrostningText: {
-    fontFamily: 'DMSans_500Medium',
+    fontFamily: 'DMSans_600SemiBold',
     fontSize: 10,
-    color: '#5B21B6',
+    color: '#4A1D96',
+  },
+  newsChipInfo: {
+    backgroundColor: '#DEF0FF',
+    borderRadius: 6,
+    width: 54,
+    paddingVertical: 4,
+    alignItems: 'center',
+  },
+  newsChipInfoText: {
+    fontFamily: 'DMSans_600SemiBold',
+    fontSize: 10,
+    color: '#1A5276',
   },
 });

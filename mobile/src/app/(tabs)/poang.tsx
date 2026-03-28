@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, useWindowDimensions, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, useWindowDimensions, RefreshControl, TouchableOpacity, type DimensionValue } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -15,9 +15,9 @@ import { Lock } from 'lucide-react-native';
 import type { Score, Team } from '@/lib/state/store';
 
 const TEAM_THEMES: Record<string, { emoji: string; color: string }> = {
-  Charter:            { emoji: '✈',  color: '#F1C40F' },
+  Charter:            { emoji: '✈️',  color: '#F1C40F' },
   Safari:             { emoji: '🦁',  color: '#E67E22' },
-  Fjällvandring:      { emoji: '⛰',  color: '#1ABC9C' },
+  Fjällvandring:      { emoji: '🏔️',  color: '#1ABC9C' },
   Tågluff:            { emoji: '🚂',  color: '#3498DB' },
   Camping:            { emoji: '⛺',  color: '#27AE60' },
   Träningsresa:       { emoji: '🏋',  color: '#E74C3C' },
@@ -117,11 +117,11 @@ const CARD_BORDER: Record<number, string> = {
 type TeamCardProps = {
   row: TeamRow;
   rank: number;
-  cardWidth: number;
+  cardWidth: DimensionValue;
   phaseLabel: string;
 };
 
-function SkeletonGrid({ cardWidth }: { cardWidth: number }) {
+function SkeletonGrid({ cardWidth }: { cardWidth: DimensionValue }) {
   const pulseOpacity = useSharedValue(0.3);
   useEffect(() => {
     pulseOpacity.value = withRepeat(
@@ -225,7 +225,7 @@ function TeamCard({ row, rank, cardWidth, phaseLabel }: TeamCardProps) {
 }
 
 // Podium heights
-const PODIUM_HEIGHTS: Record<number, number> = { 1: 80, 2: 60, 3: 45 };
+const PODIUM_HEIGHTS: Record<number, number> = { 1: 108, 2: 88, 3: 74 };
 // Podium order: 2nd left, 1st center, 3rd right
 const PODIUM_ORDER = [1, 0, 2]; // indices into top3 rows (0-indexed)
 
@@ -245,7 +245,7 @@ function Podium({ rows }: PodiumProps) {
         if (!row) return null;
         const rank = rankOrder[i];
         const height = PODIUM_HEIGHTS[rank] ?? 45;
-        const podiumColor = rank === 1 ? '#D4AF37' : rank === 2 ? '#A8A9AD' : '#CD7F32';
+        const podiumColor = rank === 1 ? '#B8960A' : rank === 2 ? '#7A7F88' : '#A85E18';
         const medalColor = rank === 1 ? '#D4AF37' : rank === 2 ? '#A8A9AD' : '#CD7F32';
 
         return (
@@ -256,12 +256,12 @@ function Podium({ rows }: PodiumProps) {
             {/* Team name directly above podium */}
             <Text style={styles.podiumTeamName} numberOfLines={2}>{row.name}</Text>
 
-            {/* Podium block with medal circle at the boundary */}
-            <View style={{ width: '100%', alignItems: 'center', marginTop: 6 }}>
-              <View style={[styles.podiumMedalWrap, { borderColor: medalColor, position: 'absolute', top: -15, zIndex: 1 }]}>
+            {/* Medal circle sits just above the block, flows in layout */}
+            <View style={{ width: '100%', alignItems: 'center' }}>
+              <View style={[styles.podiumMedalWrap, { borderColor: medalColor, marginBottom: -15, zIndex: 1 }]}>
                 <Text style={[styles.podiumMedalText, { color: medalColor }]}>{rank}</Text>
               </View>
-              <View style={[styles.podiumBlock, { height, backgroundColor: podiumColor, width: '100%', paddingTop: 14 }]}>
+              <View style={[styles.podiumBlock, { height, backgroundColor: podiumColor, width: '100%', paddingTop: 20, justifyContent: 'center' }]}>
                 <Text style={styles.podiumBlockScore}>{row.total}</Text>
                 <Text style={styles.podiumBlockScoreLabel}>poäng</Text>
               </View>
@@ -309,7 +309,7 @@ export default function PoangScreen() {
 
   // Single-column layout: full width minus padding
   const GRID_PADDING = 12;
-  const cardWidth = screenWidth - GRID_PADDING * 2;
+  const cardWidth = '100%' as const;
 
   const restRows = rows.slice(3);
 
@@ -425,20 +425,20 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E5DFD1' },
 
   header: {
-    paddingTop: 12,
-    paddingBottom: 24,
+    paddingTop: 8,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 36,
+    fontSize: 26,
     color: '#F5EFE0',
   },
 
@@ -498,14 +498,14 @@ const styles = StyleSheet.create({
   },
   podiumBlockScore: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 18,
-    color: '#fff',
-    lineHeight: 22,
+    fontSize: 24,
+    color: '#1A1A1A',
+    lineHeight: 28,
   },
   podiumBlockScoreLabel: {
-    fontFamily: 'SpaceMono_400Regular',
-    fontSize: 9,
-    color: 'rgba(255,255,255,0.75)',
+    fontFamily: 'DMSans_400Regular',
+    fontSize: 11,
+    color: 'rgba(0,0,0,0.55)',
   },
 
   restLabel: {

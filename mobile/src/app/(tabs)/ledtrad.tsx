@@ -93,7 +93,7 @@ export default function LedtradScreen() {
     const key = keyMap[course];
     if (!key) return true;
     const val = unlockTimes[key];
-    if (!val) return false;
+    if (!val) return true;
     return new Date() >= new Date(val);
   };
 
@@ -116,7 +116,7 @@ export default function LedtradScreen() {
     <View style={styles.container} testID="ledtrad-screen">
       <LinearGradient
         colors={['#1C4F4A', '#2A6B64']}
-        style={[styles.header, { paddingTop: insets.top + 16 }]}
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
       >
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>Ledtrådar</Text>
@@ -172,19 +172,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5DFD1',
   },
   header: {
-    paddingBottom: 24,
+    paddingBottom: 10,
     paddingHorizontal: 22,
   },
   headerEyebrow: {
     fontFamily: 'SpaceMono_400Regular',
-    fontSize: 11,
+    fontSize: 10,
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
-    marginBottom: 6,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 36,
+    fontSize: 26,
     color: '#F5EFE0',
   },
   scrollView: {

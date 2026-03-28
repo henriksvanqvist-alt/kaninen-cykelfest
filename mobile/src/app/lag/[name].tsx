@@ -50,13 +50,12 @@ export default function LagDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={info.colors} style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <LinearGradient colors={info.colors} style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <ChevronLeft size={22} color="rgba(255,255,255,0.8)" />
+          <ChevronLeft size={22} color="#A8D4B8" strokeWidth={2} />
         </TouchableOpacity>
-        <Text style={styles.headerEmoji}>{info.emoji}</Text>
+        <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
         <Text style={styles.headerTitle}>{decodedName}</Text>
-        <Text style={styles.headerSub}>Kaninens Cykelfest 2026</Text>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false}>
@@ -95,36 +94,33 @@ export default function LagDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAF7F2' },
   header: {
-    paddingTop: 12,
-    paddingBottom: 32,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+    paddingBottom: 10,
+    paddingHorizontal: 22,
   },
   backBtn: {
-    position: 'absolute',
-    left: 16,
-    top: 12,
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: 'rgba(168,212,184,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(168,212,184,0.2)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(168,212,184,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  headerEmoji: {
-    fontSize: 40,
     marginBottom: 8,
+    alignSelf: 'flex-start',
+  },
+  headerEyebrow: {
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 10,
+    letterSpacing: 2,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 2,
   },
   headerTitle: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 32,
+    fontSize: 26,
     color: '#FFFFFF',
-    marginBottom: 4,
-    textShadowColor: 'rgba(0,0,0,0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    lineHeight: 30,
   },
   headerSub: {
     fontFamily: 'SpaceMono_400Regular',
