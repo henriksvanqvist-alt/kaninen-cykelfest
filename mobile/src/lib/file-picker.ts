@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 export type PickedFile = { uri: string; filename: string; mimeType: string };
 
@@ -18,8 +18,12 @@ function checkSize(fileSize: number | undefined): boolean {
 }
 
 export async function pickImage(): Promise<PickedFile | null> {
-  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) return null;
+  // On web, skip permission request — browsers block file pickers
+  // that aren't directly tied to the user interaction event
+  if (Platform.OS !== 'web') {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return null;
+  }
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     quality: 0.8,
