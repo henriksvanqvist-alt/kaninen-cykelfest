@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
   contactInfo: { flex: 1 },
   contactName: {
     fontFamily: 'DMSans_600SemiBold',
-    fontSize: 13,
+    fontSize: 17,
     color: '#2A2A2A',
   },
   contactNum: {
     fontFamily: 'DMSans_400Regular',
-    fontSize: 12,
+    fontSize: 14,
     color: '#5A5040',
     marginTop: 2,
   },
