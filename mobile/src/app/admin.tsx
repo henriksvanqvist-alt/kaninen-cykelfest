@@ -419,6 +419,83 @@ export default function AdminScreen() {
 
   // Nyheter
   type NewsItem = { id: string; title: string; body: string; type: string; createdAt: string };
+  type VideoItem = { id: string; title: string; url: string; publishedAt: string };
+  const [videoList, setVideoList] = useState<VideoItem[]>([]);
+  const [newVideoTitle, setNewVideoTitle] = useState('');
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [addVideoLoading, setAddVideoLoading] = useState(false);
+  const [videoFileStatus, setVideoFileStatus] = useState<'idle' | 'compressing' | 'uploading'>('idle');
+  const [videoFileProgress, setVideoFileProgress] = useState(0);
+
+  function compressVideoWeb(file: File, onProgress: (pct: number) => void): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      const url = URL.createObjectURL(file);
+      video.src = url;
+      video.muted = true;
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+        const stream = (video as any).captureStream();
+        const chunks: Blob[] = [];
+        const mimeType = (window as any).MediaRecorder?.isTypeSupported?.('video/webm;codecs=vp9')
+          ? 'video/webm;codecs=vp9' : 'video/webm';
+        const recorder = new (window as any).MediaRecorder(stream, { mimeType, videoBitsPerSecond: 800_000 });
+        recorder.ondataavailable = (e: any) => { if (e.data.size > 0) chunks.push(e.data); };
+        recorder.onstop = () => { URL.revokeObjectURL(url); resolve(new Blob(chunks, { type: 'video/webm' })); };
+        const interval = setInterval(() => {
+          if (duration > 0) onProgress(Math.min(99, Math.round((video.currentTime / duration) * 100)));
+        }, 400);
+        video.onended = () => { clearInterval(interval); recorder.stop(); };
+        recorder.start();
+        video.play();
+      };
+      video.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Kunde inte läsa videon')); };
+    });
+  }
+
+  async function handlePickVideoFile() {
+    if (Platform.OS !== 'web') {
+      Alert.alert('Inte tillgängligt', 'Filuppladdning stöds bara i webbläsaren.');
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const LIMIT = 50 * 1024 * 1024; // 50 MB
+      const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL!;
+      const doUpload = async (blob: Blob, filename: string) => {
+        setVideoFileStatus('uploading');
+        const form = new FormData();
+        form.append('file', blob, filename);
+        const res = await fetch(`${BACKEND_URL}/api/upload`, { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        setNewVideoUrl(data.data.url);
+      };
+      try {
+        if (file.size <= LIMIT) {
+          await doUpload(file, file.name);
+        } else {
+          setVideoFileStatus('compressing');
+          setVideoFileProgress(0);
+          const compressed = await compressVideoWeb(file, setVideoFileProgress);
+          const fname = file.name.replace(/\.[^.]+$/, '.webm');
+          await doUpload(compressed, fname);
+        }
+      } catch (e: any) {
+        Alert.alert('Fel', e?.message ?? 'Något gick fel vid uppladdning.');
+      } finally {
+        setVideoFileStatus('idle');
+        setVideoFileProgress(0);
+      }
+    };
+    input.click();
+  }
+
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [newsTitle, setNewsTitle] = useState('');
   const [newsBody, setNewsBody] = useState('');
@@ -738,6 +815,7 @@ export default function AdminScreen() {
   useEffect(() => {
     if (isLoggedIn) {
       api.get<NewsItem[]>('/api/cykelfest/news').then(setNewsList).catch(() => {});
+      api.get<VideoItem[]>('/api/cykelfest/videos').then(data => setVideoList([...data].sort((a,b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()))).catch(() => {});
       api.get<PhaseItem[]>('/api/cykelfest/phases').then(setPhaseItems).catch(() => {});
       api.get<Question[]>('/api/cykelfest/questions').then(setQuestions).catch(() => {});
       api.get<QuizPoll[]>('/api/cykelfest/polls').then((polls) => setQuizPolls(polls.filter(p => p.correctAnswer !== null && p.correctAnswer !== undefined))).catch(() => {});
@@ -1712,6 +1790,101 @@ export default function AdminScreen() {
             ) : null}
 
             {/* 4) Vald deltagare — borttagen, nu inline ovan */}
+          </View>
+        ) : null}
+      </View>
+
+      {/* VIDEOS */}
+      <View style={styles.section}>
+        <TouchableOpacity style={styles.accordionHeader} onPress={() => toggleSection('videos')}>
+          <View style={styles.accordionLabelWrap}>
+            <Text style={styles.accordionLabel}>VIDEOS ({videoList.length} st)</Text>
+            <Text style={styles.accordionSub}>Lägg till och ta bort videos på startsidan</Text>
+          </View>
+          {expanded['videos'] ? <ChevronUp size={16} color="#9A8E78" /> : <ChevronDown size={16} color="#9A8E78" />}
+        </TouchableOpacity>
+        {expanded['videos'] ? (
+          <View style={{ gap: 10 }}>
+            <View style={[styles.card, { gap: 8 }]}>
+              <Text style={styles.phaseLabel}>Lägg till video</Text>
+              <TextInput
+                style={styles.input}
+                value={newVideoTitle}
+                onChangeText={setNewVideoTitle}
+                placeholder="Titel (t.ex. Kaninen dansar)…"
+                placeholderTextColor="#B8B0A0"
+              />
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TextInput
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                  value={newVideoUrl}
+                  onChangeText={setNewVideoUrl}
+                  placeholder="Video-URL (MP4 eller stream-länk)…"
+                  placeholderTextColor="#B8B0A0"
+                  autoCapitalize="none"
+                  keyboardType="url"
+                />
+                <TouchableOpacity
+                  onPress={handlePickVideoFile}
+                  disabled={videoFileStatus !== 'idle'}
+                  style={{ backgroundColor: '#EAE4D4', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, opacity: videoFileStatus !== 'idle' ? 0.5 : 1 }}
+                >
+                  <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 12, color: '#5A3800' }}>Välj fil</Text>
+                </TouchableOpacity>
+              </View>
+              {videoFileStatus !== 'idle' ? (
+                <View style={{ backgroundColor: '#F5F1E8', borderRadius: 8, padding: 10, gap: 6 }}>
+                  <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 12, color: '#5A3800' }}>
+                    {videoFileStatus === 'compressing' ? `Komprimerar… ${videoFileProgress}%` : 'Laddar upp…'}
+                  </Text>
+                  <View style={{ height: 4, backgroundColor: '#EDE6D6', borderRadius: 2, overflow: 'hidden' }}>
+                    <View style={{ height: 4, backgroundColor: '#2A6B64', borderRadius: 2, width: videoFileStatus === 'uploading' ? '100%' : `${videoFileProgress}%` as any }} />
+                  </View>
+                </View>
+              ) : null}
+              <TouchableOpacity
+                style={[styles.publishBtn, (!newVideoTitle.trim() || !newVideoUrl.trim() || addVideoLoading || videoFileStatus !== 'idle') && { opacity: 0.5 }]}
+                disabled={!newVideoTitle.trim() || !newVideoUrl.trim() || addVideoLoading || videoFileStatus !== 'idle'}
+                onPress={async () => {
+                  setAddVideoLoading(true);
+                  try {
+                    const created = await api.post<VideoItem>('/api/cykelfest/videos', { title: newVideoTitle.trim(), url: newVideoUrl.trim() });
+                    setVideoList(prev => [created, ...prev]);
+                    setNewVideoTitle('');
+                    setNewVideoUrl('');
+                  } catch { Alert.alert('Fel', 'Kunde inte lägga till videon.'); }
+                  setAddVideoLoading(false);
+                }}
+              >
+                <Text style={styles.publishBtnText}>{addVideoLoading ? 'Lägger till…' : 'Lägg till'}</Text>
+              </TouchableOpacity>
+            </View>
+            {videoList.length > 0 ? (
+              <View style={styles.card}>
+                {videoList.map((v, i) => (
+                  <View key={v.id}>
+                    {i > 0 && <View style={styles.phaseDivider} />}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 13, color: '#2A2A2A' }}>{v.title}</Text>
+                        <Text style={{ fontFamily: 'DMSans_400Regular', fontSize: 11, color: '#9A8E78', marginTop: 2 }} numberOfLines={1}>{v.url}</Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={async () => {
+                          try {
+                            await api.delete(`/api/cykelfest/videos/${v.id}`);
+                            setVideoList(prev => prev.filter(x => x.id !== v.id));
+                          } catch { Alert.alert('Fel', 'Kunde inte ta bort videon.'); }
+                        }}
+                        style={{ padding: 6 }}
+                      >
+                        <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 12, color: '#C0392B' }}>Ta bort</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : null}
           </View>
         ) : null}
       </View>

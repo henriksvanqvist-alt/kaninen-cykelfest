@@ -2121,5 +2121,41 @@ cykelfestRouter.put("/feedback/questions", async (c) => {
   return c.json({ data: updated });
 });
 
+// ---- VIDEOS ----
+
+const CreateVideoSchema = z.object({
+  title: z.string().min(1),
+  url: z.string().url(),
+  thumbnailUrl: z.string().url().optional(),
+  durationSeconds: z.number().int().positive().optional(),
+});
+
+// GET /videos — list all videos, newest first
+cykelfestRouter.get("/videos", async (c) => {
+  const videos = await prisma.video.findMany({
+    orderBy: { publishedAt: "desc" },
+  });
+  return c.json({ data: videos });
+});
+
+// POST /videos — add a new video
+cykelfestRouter.post("/videos", async (c) => {
+  const body = await c.req.json();
+  const parsed = CreateVideoSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: { message: "Ogiltig data", details: parsed.error.flatten() } }, 400);
+  }
+  const video = await prisma.video.create({ data: parsed.data });
+  return c.json({ data: video }, 201);
+});
+
+// DELETE /videos/:id — ta bort en video
+cykelfestRouter.delete("/videos/:id", async (c) => {
+  const id = c.req.param("id");
+  await prisma.video.delete({ where: { id } });
+  return c.json({ data: { ok: true } });
+});
+
 // ---- SEED DATA (for testing) ----
 // /seed endpoint removed for production security
+

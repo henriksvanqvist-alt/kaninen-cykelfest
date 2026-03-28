@@ -100,6 +100,7 @@ export default function HomeScreen() {
     (player) => { player.loop = false; }
   );
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoIdx, setVideoIdx] = useState(0);
   const [aterkopplingDone, setAterkopplingDone] = useState(false);
 
   useEffect(() => {
@@ -152,7 +153,6 @@ export default function HomeScreen() {
   const [currentChoice, setCurrentChoice] = useState<number | null>(null);
   const [quizDone, setQuizDone] = useState(false);
   const [quizCollapsed, setQuizCollapsed] = useState(false);
-  const [videoIdx, setVideoIdx] = useState(0);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -238,6 +238,17 @@ export default function HomeScreen() {
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
   const currentVideo = latestVideos[videoIdx] ?? null;
+
+  useEffect(() => {
+    if (!videoPlayer) return;
+    setVideoPlaying(false);
+    videoPlayer.pause();
+    if (currentVideo?.url) {
+      videoPlayer.replace({ uri: currentVideo.url });
+    } else {
+      videoPlayer.replace(require('../../../assets/kaninen_dansar.mp4'));
+    }
+  }, [currentVideo?.url]);
 
   async function handleVote(choice: number) {
     if (!activePoll) return;

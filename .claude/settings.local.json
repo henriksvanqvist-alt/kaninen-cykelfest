@@ -113,7 +113,8 @@
       "Bash(vercel domains:*)",
       "Read(//Users/maxagent/Documents/Kaninen-web/**)",
       "WebFetch(domain:commons.wikimedia.org)",
-      "Bash(vercel alias:*)"
+      "Bash(vercel alias:*)",
+      "Bash(git commit:*)"
     ],
     "additionalDirectories": [
       "/Users/maxagent/Documents/Kaninen-web/.claude/skills"
