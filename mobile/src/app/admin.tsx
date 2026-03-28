@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { pickImage, pickVideo, pickAudio } from '@/lib/file-picker';
 import * as DocumentPicker from 'expo-document-picker';
-import { uploadFile } from '@/lib/upload';
+import { uploadPickedFile } from '@/lib/upload';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { api } from '@/lib/api/api';
@@ -2816,7 +2816,7 @@ export default function AdminScreen() {
                               try {
                                 const file = await pickImage();
                                 if (file) {
-                                  const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                  const result = await uploadPickedFile(file);
                                   setEditImageUrl(result.url);
                                 }
                               } catch {} finally { setUploadingImage(false); }
@@ -2885,7 +2885,7 @@ export default function AdminScreen() {
                                         try {
                                           const file = editDQContentType === 'image' ? await pickImage() : editDQContentType === 'audio' ? await pickAudio() : await pickVideo();
                                           if (file) {
-                                            const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                            const result = await uploadPickedFile(file);
                                             setEditDQContentUrl(result.url);
                                           }
                                         } catch {} finally { setUploadingContentUrl(false); }
@@ -2963,7 +2963,7 @@ export default function AdminScreen() {
                                       try {
                                         const file = newDQContentType === 'image' ? await pickImage() : newDQContentType === 'audio' ? await pickAudio() : await pickVideo();
                                         if (file) {
-                                          const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                          const result = await uploadPickedFile(file);
                                           setNewDQContentUrl(result.url);
                                         }
                                       } catch {} finally { setUploadingContentUrl(false); }

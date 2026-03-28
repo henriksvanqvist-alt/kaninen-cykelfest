@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Alert, Platform } from 'react-native';
 
-export type PickedFile = { uri: string; filename: string; mimeType: string };
+export type PickedFile = { uri: string; filename: string; mimeType: string; webFile?: File };
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -22,27 +22,33 @@ function pickFileWeb(accept: string): Promise<PickedFile | null> {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = accept;
-    input.onchange = () => {
+    input.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(input);
+
+    input.addEventListener('change', () => {
+      document.body.removeChild(input);
       const file = input.files?.[0];
       if (!file) { resolve(null); return; }
       if (!checkSize(file.size)) { resolve(null); return; }
-      const uri = URL.createObjectURL(file);
-      resolve({ uri, filename: file.name, mimeType: file.type });
-    };
-    input.oncancel = () => resolve(null);
-    // Handle case where user closes dialog without selecting
-    window.addEventListener('focus', function onFocus() {
-      window.removeEventListener('focus', onFocus);
-      setTimeout(() => { if (!input.files?.length) resolve(null); }, 500);
-    }, { once: true });
+      resolve({
+        uri: URL.createObjectURL(file),
+        filename: file.name,
+        mimeType: file.type || 'application/octet-stream',
+        webFile: file,
+      });
+    });
+
+    input.addEventListener('cancel', () => {
+      document.body.removeChild(input);
+      resolve(null);
+    });
+
     input.click();
   });
 }
 
 export async function pickImage(): Promise<PickedFile | null> {
-  if (Platform.OS === 'web') {
-    return pickFileWeb('image/*');
-  }
+  if (Platform.OS === 'web') return pickFileWeb('image/*');
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!perm.granted) return null;
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -56,9 +62,7 @@ export async function pickImage(): Promise<PickedFile | null> {
 }
 
 export async function pickVideo(): Promise<PickedFile | null> {
-  if (Platform.OS === 'web') {
-    return pickFileWeb('video/*');
-  }
+  if (Platform.OS === 'web') return pickFileWeb('video/*');
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!perm.granted) return null;
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -71,9 +75,7 @@ export async function pickVideo(): Promise<PickedFile | null> {
 }
 
 export async function pickAudio(): Promise<PickedFile | null> {
-  if (Platform.OS === 'web') {
-    return pickFileWeb('audio/*');
-  }
+  if (Platform.OS === 'web') return pickFileWeb('audio/*');
   const DocumentPicker = await import('expo-document-picker');
   const result = await DocumentPicker.getDocumentAsync({
     type: ['audio/*'],
