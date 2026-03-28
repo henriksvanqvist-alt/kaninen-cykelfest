@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
   },
   dateHeading: {
     fontFamily: 'DMSerifDisplay_400Regular',
-    fontSize: 17,
+    fontSize: 22,
     color: '#4A4030',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   card: {
     borderRadius: 12,
