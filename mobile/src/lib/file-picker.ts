@@ -35,8 +35,10 @@ export async function pickImage(): Promise<PickedFile | null> {
 }
 
 export async function pickVideo(): Promise<PickedFile | null> {
-  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) return null;
+  if (Platform.OS !== 'web') {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return null;
+  }
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Videos,
   });
@@ -44,4 +46,16 @@ export async function pickVideo(): Promise<PickedFile | null> {
   const a = result.assets[0];
   if (!checkSize(a.fileSize)) return null;
   return { uri: a.uri, filename: a.fileName ?? `video-${Date.now()}.mp4`, mimeType: a.mimeType ?? 'video/mp4' };
+}
+
+export async function pickAudio(): Promise<PickedFile | null> {
+  const DocumentPicker = await import('expo-document-picker');
+  const result = await DocumentPicker.getDocumentAsync({
+    type: ['audio/*'],
+    copyToCacheDirectory: true,
+  });
+  if (result.canceled) return null;
+  const a = result.assets[0];
+  if (!checkSize(a.size)) return null;
+  return { uri: a.uri, filename: a.name ?? `audio-${Date.now()}.mp3`, mimeType: a.mimeType ?? 'audio/mpeg' };
 }

@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   TextInput, Alert, Pressable, Linking, Modal, ActivityIndicator, Platform,
 } from 'react-native';
-import { pickImage, pickVideo } from '@/lib/file-picker';
+import { pickImage, pickVideo, pickAudio } from '@/lib/file-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { uploadFile } from '@/lib/upload';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -2879,23 +2879,21 @@ export default function AdminScreen() {
                                   <Text style={[styles.formLabel, { marginBottom: 4 }]}>{editDQContentType === 'image' ? 'BILD-URL' : editDQContentType === 'audio' ? 'LJUD-URL (MP3)' : 'VIDEO-URL'}</Text>
                                   <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
                                     <TextInput value={editDQContentUrl} onChangeText={setEditDQContentUrl} style={[styles.input, { flex: 1 }]} placeholder="https://..." placeholderTextColor="#B8B0A0" autoCapitalize="none" />
-                                    {editDQContentType !== 'audio' && (
-                                      <TouchableOpacity
-                                        onPress={async () => {
-                                          setUploadingContentUrl(true);
-                                          try {
-                                            const file = editDQContentType === 'image' ? await pickImage() : await pickVideo();
-                                            if (file) {
-                                              const result = await uploadFile(file.uri, file.filename, file.mimeType);
-                                              setEditDQContentUrl(result.url);
-                                            }
-                                          } catch {} finally { setUploadingContentUrl(false); }
-                                        }}
-                                        style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
-                                      >
-                                        {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{editDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
-                                      </TouchableOpacity>
-                                    )}
+                                    <TouchableOpacity
+                                      onPress={async () => {
+                                        setUploadingContentUrl(true);
+                                        try {
+                                          const file = editDQContentType === 'image' ? await pickImage() : editDQContentType === 'audio' ? await pickAudio() : await pickVideo();
+                                          if (file) {
+                                            const result = await uploadFile(file.uri, file.filename, file.mimeType);
+                                            setEditDQContentUrl(result.url);
+                                          }
+                                        } catch {} finally { setUploadingContentUrl(false); }
+                                      }}
+                                      style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
+                                    >
+                                      {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{editDQContentType === 'image' ? '🖼' : editDQContentType === 'audio' ? '🔊' : '🎬'}</Text>}
+                                    </TouchableOpacity>
                                   </View>
                                   {editDQContentType === 'audio' && (
                                     <>
@@ -2959,12 +2957,11 @@ export default function AdminScreen() {
                               <Text style={[styles.formLabel, { marginBottom: 4 }]}>{newDQContentType === 'image' ? 'BILD-URL' : newDQContentType === 'audio' ? 'LJUD-URL (MP3)' : 'VIDEO-URL'}</Text>
                               <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
                                 <TextInput value={newDQContentUrl} onChangeText={setNewDQContentUrl} style={[styles.input, { flex: 1 }]} placeholder="https://..." placeholderTextColor="#B8B0A0" autoCapitalize="none" />
-                                {newDQContentType !== 'audio' && (
-                                  <TouchableOpacity
+                                <TouchableOpacity
                                     onPress={async () => {
                                       setUploadingContentUrl(true);
                                       try {
-                                        const file = newDQContentType === 'image' ? await pickImage() : await pickVideo();
+                                        const file = newDQContentType === 'image' ? await pickImage() : newDQContentType === 'audio' ? await pickAudio() : await pickVideo();
                                         if (file) {
                                           const result = await uploadFile(file.uri, file.filename, file.mimeType);
                                           setNewDQContentUrl(result.url);
@@ -2973,9 +2970,8 @@ export default function AdminScreen() {
                                     }}
                                     style={{ backgroundColor: '#2A6B64', borderRadius: 8, padding: 10, justifyContent: 'center', alignItems: 'center', minWidth: 48 }}
                                   >
-                                    {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{newDQContentType === 'image' ? '🖼' : '🎬'}</Text>}
+                                    {uploadingContentUrl ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ fontSize: 18 }}>{newDQContentType === 'image' ? '🖼' : newDQContentType === 'audio' ? '🔊' : '🎬'}</Text>}
                                   </TouchableOpacity>
-                                )}
                               </View>
                               {newDQContentType === 'audio' && (
                                 <>
