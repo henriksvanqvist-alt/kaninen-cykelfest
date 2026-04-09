@@ -485,42 +485,17 @@ export default function HomeScreen() {
         <View style={styles.kalendariumCard}>
         {/* Fas 1 */}
         <TouchableOpacity
-          activeOpacity={steg1Unlocked ? 0.6 : 1}
-          style={[styles.timelineRow, steg1Unlocked ? undefined : styles.timelineRowLocked]}
-          onPress={() => steg1Unlocked ? router.push('/intresseanmalan' as any) : null}
-        >
-          <View style={[styles.timelineDot, steg1Unlocked ? styles.timelineDotDone : styles.timelineDotLocked]}>
-            <Text style={styles.timelineDotNum}>1</Text>
-          </View>
-          <View style={styles.timelineContent}>
-            <Text style={styles.timelineTitle}>Intresseanmälan</Text>
-            <Text style={styles.timelineSub} numberOfLines={1}>
-              {steg1Unlocked ? 'Personer som anmält intresse för cykelfesten' : 'Ännu inte tillgänglig'}
-            </Text>
-          </View>
-          <View style={styles.timelineRowRight}>
-            <View style={steg1Unlocked ? styles.badgeDone : styles.badgeLocked}>
-              <Text style={steg1Unlocked ? styles.badgeDoneText : styles.badgeLockedText}>{steg1Unlocked ? 'Avslutat' : 'Stängt'}</Text>
-            </View>
-            <ChevronRight size={14} color="rgba(255,255,255,0.4)" />
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.timelineDivider} />
-
-        {/* Fas 2 */}
-        <TouchableOpacity
           activeOpacity={steg2Unlocked ? 0.6 : 1}
           style={[styles.timelineRow, steg2Unlocked ? styles.timelineRowActive : styles.timelineRowLocked]}
           onPress={() => steg2Unlocked ? router.push('/bekraftad-anmalan' as any) : null}
         >
           {steg2Unlocked ? (
             <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={[styles.timelineDot, styles.timelineDotActive]}>
-              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>2</Text>
+              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>1</Text>
             </LinearGradient>
           ) : (
             <View style={[styles.timelineDot, styles.timelineDotLocked]}>
-              <Text style={styles.timelineDotNum}>2</Text>
+              <Text style={styles.timelineDotNum}>1</Text>
             </View>
           )}
           <View style={styles.timelineContent}>
@@ -547,11 +522,11 @@ export default function HomeScreen() {
         >
           {lagUnlocked ? (
             <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={[styles.timelineDot, styles.timelineDotActive]}>
-              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>3</Text>
+              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>2</Text>
             </LinearGradient>
           ) : (
             <View style={[styles.timelineDot, styles.timelineDotLocked]}>
-              <Text style={styles.timelineDotNum}>3</Text>
+              <Text style={styles.timelineDotNum}>2</Text>
             </View>
           )}
           <View style={styles.timelineContent}>
@@ -578,11 +553,11 @@ export default function HomeScreen() {
         >
           {vardinfoUnlocked ? (
             <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={[styles.timelineDot, styles.timelineDotActive]}>
-              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>4</Text>
+              <Text style={[styles.timelineDotNum, { color: '#A8D4B8' }]}>3</Text>
             </LinearGradient>
           ) : (
             <View style={[styles.timelineDot, styles.timelineDotLocked]}>
-              <Text style={styles.timelineDotNum}>4</Text>
+              <Text style={styles.timelineDotNum}>3</Text>
             </View>
           )}
           <View style={styles.timelineContent}>
