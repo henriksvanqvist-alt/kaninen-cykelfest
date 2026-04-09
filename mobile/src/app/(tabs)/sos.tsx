@@ -25,42 +25,13 @@ export default function SOSScreen() {
         <Text style={styles.headerTitle}>Hjälp</Text>
       </LinearGradient>
 
-      {/* Ring arrangören */}
-      <View style={styles.section}>
-        <PressableScale
-          style={styles.mainCallBtn}
-          onPress={() => Linking.openURL(`tel:${contact1Number}`)}
-          testID="call-arranger"
-        >
-          <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={styles.mainCallGrad}>
-            <Phone size={28} color="#A8D4B8" />
-            <View>
-              <Text style={styles.mainCallTitle}>Ring för hjälp</Text>
-              <Text style={styles.mainCallSub}>Kaninen är alltid nåbar</Text>
-            </View>
-          </LinearGradient>
-        </PressableScale>
-      </View>
+
 
       {/* Kontakter */}
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>NÖDKONTAKTER</Text>
         <View style={styles.card}>
-          <PressableScale
-            style={[styles.contactRow, { backgroundColor: '#FFF0F0' }]}
-            onPress={() => Linking.openURL(`tel:${contact1Number}`)}
-            testID="call-112"
-          >
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactName}>{contact1Name}</Text>
-              <Text style={styles.contactNum}>När det är fara för liv</Text>
-            </View>
-            <View style={[styles.contactIconSmall, { backgroundColor: '#FFE5E5' }]}>
-              <Phone size={16} color="#C0392B" />
-            </View>
-          </PressableScale>
 
-          <View style={styles.contactDivider} />
 
           <PressableScale
             style={styles.contactRow}
