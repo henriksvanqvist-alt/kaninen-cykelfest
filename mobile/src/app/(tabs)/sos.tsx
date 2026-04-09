@@ -27,52 +27,21 @@ export default function SOSScreen() {
 
 
 
-      {/* Kontakter */}
+      {/* Ring Kaninen */}
       <View style={styles.section}>
-        <Text style={styles.sectionLabel}>NÖDKONTAKTER</Text>
-        <View style={styles.card}>
-
-
-          <PressableScale
-            style={styles.contactRow}
-            onPress={() => Linking.openURL(`tel:${contact2Number}`)}
-            testID="call-organizer"
-          >
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactName}>{contact2Name}</Text>
-              <Text style={styles.contactNum}>När du är lost</Text>
+        <PressableScale
+          style={styles.mainCallBtn}
+          onPress={() => Linking.openURL(`tel:${contact2Number}`)}
+          testID="call-kaninen"
+        >
+          <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={styles.mainCallGrad}>
+            <Phone size={28} color="#A8D4B8" />
+            <View>
+              <Text style={styles.mainCallTitle}>Ring Kaninen för hjälp</Text>
+              <Text style={styles.mainCallSub}>Kaninen är alltid nåbar</Text>
             </View>
-            <View style={[styles.contactIconSmall, { backgroundColor: '#E5F0FF' }]}>
-              <Phone size={16} color="#2A5FA8" />
-            </View>
-          </PressableScale>
-
-          <View style={styles.contactDivider} />
-
-          <PressableScale
-            style={styles.contactRow}
-            onPress={() => Linking.openURL(`tel:${contact3Number}`)}
-            testID="call-taxi"
-          >
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactName}>{contact3Name}</Text>
-              <Text style={styles.contactNum}>När du är på andra sidan stan</Text>
-            </View>
-            <View style={[styles.contactIconSmall, { backgroundColor: '#FFF8E5' }]}>
-              <Phone size={16} color="#C4814A" />
-            </View>
-          </PressableScale>
-        </View>
-      </View>
-
-      {/* Info */}
-      <View style={styles.section}>
-        <View style={[styles.card, styles.infoCard]}>
-          <AlertTriangle size={20} color="#C4814A" />
-          <Text style={styles.infoText}>
-            Denna skärm är alltid tillgänglig oavsett om appen är låst eller inte. Ring alltid 112 vid fara för liv.
-          </Text>
-        </View>
+          </LinearGradient>
+        </PressableScale>
       </View>
 
     </ScrollView>
