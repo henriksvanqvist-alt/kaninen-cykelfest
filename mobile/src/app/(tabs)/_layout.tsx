@@ -35,7 +35,7 @@ const TABS: TabItem[] = [
   { name: 'schema', label: 'Program', emoji: '📋', alwaysActive: true },
   { name: 'ledtrad', label: 'Ledtrådar', emoji: '🔑', alwaysActive: true },
   { name: 'poang', label: 'Poäng', emoji: '🏆', alwaysActive: true },
-  { name: 'sos', label: 'SOS', emoji: '🚨', alwaysActive: true },
+  { name: 'sos', label: 'Hjälp', emoji: '🚨', alwaysActive: true },
 ];
 
 const TAB_ICONS = {

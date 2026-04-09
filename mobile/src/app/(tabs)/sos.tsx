@@ -22,7 +22,7 @@ export default function SOSScreen() {
       {/* Header */}
       <LinearGradient colors={['#8B1A1A', '#C0392B']} style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
-        <Text style={styles.headerTitle}>SOS</Text>
+        <Text style={styles.headerTitle}>Hjälp</Text>
       </LinearGradient>
 
       {/* Ring arrangören */}
