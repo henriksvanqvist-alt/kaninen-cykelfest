@@ -530,7 +530,7 @@ export default function AdminScreen() {
   const [programStops, setProgramStops] = useState<ProgramStopEdit[]>([]);
   const [editingStop, setEditingStop] = useState<ProgramStopEdit | null>(null);
 
-  // Leaderboard
+  // Poäng
   const scores = useAppStore((s) => s.scores);
   const PHASE_LABELS = ['Deltävling 1', 'Deltävling 2', 'Deltävling 3'];
   const PHASE_IDS = ['deltavling-1', 'deltavling-2', 'deltavling-3'];
@@ -3037,11 +3037,11 @@ export default function AdminScreen() {
         ) : null}
       </View>
 
-      {/* Leaderboard */}
+      {/* Poäng */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.accordionHeader} onPress={() => toggleSection('poang')}>
           <View style={styles.accordionLabelWrap}>
-            <Text style={styles.accordionLabel}>LEADERBOARD ({teams.length} lag)</Text>
+            <Text style={styles.accordionLabel}>POÄNGEN ({teams.length} lag)</Text>
             <Text style={styles.accordionSub}>Poängtavla och lagranking i realtid</Text>
           </View>
           {expanded['poang'] ? <ChevronUp size={16} color="#9A8E78" /> : <ChevronDown size={16} color="#9A8E78" />}
