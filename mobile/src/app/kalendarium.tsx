@@ -115,16 +115,8 @@ export default function KalendariumScreen() {
 
   const STEPS: TimelineStep[] = [
     {
-      status: steg1Unlocked ? 'done' : 'locked',
-      icon: '1',
-      title: 'Intresseanmälan',
-      sub: steg1Unlocked ? 'Personer som anmält intresse för cykelfesten' : 'Ännu inte tillgänglig',
-      badge: steg1Unlocked ? 'Klart' : 'Kommande',
-      route: steg1Unlocked ? '/intresseanmalan' : undefined,
-    },
-    {
       status: steg2Unlocked ? 'active' : 'locked',
-      icon: '2',
+      icon: '1',
       title: 'Bekräfta anmälan',
       sub: steg2Unlocked ? 'Bekräftelse av deltagande senast den 10 april' : 'Ännu inte tillgänglig',
       badge: steg2Unlocked ? 'Öppet' : 'Kommande',
@@ -132,7 +124,7 @@ export default function KalendariumScreen() {
     },
     {
       status: lagUnlocked ? 'active' : 'locked',
-      icon: '3',
+      icon: '2',
       title: 'Info om mitt lag',
       sub: lagUnlocked ? 'Se mitt lag och lagmedlemmar' : `Tillgänglig från ${lagDateLabel}`,
       badge: lagUnlocked ? 'Öppet' : 'Kommande',
@@ -141,7 +133,7 @@ export default function KalendariumScreen() {
     },
     {
       status: vardinfoUnlocked ? 'active' : 'locked',
-      icon: '4',
+      icon: '3',
       title: 'Info om mitt värdskap',
       sub: vardinfoUnlocked ? 'Se vad som gäller för mitt värdskap' : `Pinkod skickas separat. Tillgänglig från ${vardinfoDateLabel}.`,
       badge: vardinfoUnlocked ? 'Öppet' : 'Kommande',
@@ -150,7 +142,7 @@ export default function KalendariumScreen() {
     },
     {
       status: steg5Unlocked ? 'active' : 'locked',
-      icon: '5',
+      icon: '4',
       title: 'Info om min förrätt',
       sub: steg5Unlocked ? 'Var jag skall befinna mig för min förrätt' : `Tillgänglig från ${steg5DateLabel}`,
       badge: steg5Unlocked ? 'Öppet' : 'Kommande',
@@ -159,7 +151,7 @@ export default function KalendariumScreen() {
     },
     {
       status: steg6Unlocked ? 'active' : 'locked',
-      icon: '6',
+      icon: '5',
       title: 'Cykelfesten börjar!',
       sub: steg6Unlocked ? 'Startskottet är här — dags att cykla!' : `Startskottet ${steg6DateLabel} kl 15:00`,
       badge: steg6Unlocked ? 'Öppet' : 'Kommande',
