@@ -142,6 +142,8 @@ export default function HomeScreen() {
     ? todayStr >= settings['unlock_steg5']
     : false;
   const adressDateLabel = safeDate(settings['unlock_steg5'], 'festdagen');
+  const steg6Unlocked = settings['unlock_steg6'] ? todayStr >= settings['unlock_steg6'] : false;
+  const steg6DateLabel = safeDate(settings['unlock_steg6'], '30 maj');
 
   const nowStr = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}T${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; })();
   const aterkopplingUnlocked = settings['unlock_aterkoppling']

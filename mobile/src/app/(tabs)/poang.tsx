@@ -302,10 +302,10 @@ export default function PoangScreen() {
 
   const completedCount = allPhaseIds.length > 0 ? Math.min(allPhaseIds.length, 3) : 1;
   const phaseLabel = completedCount === 1
-    ? 'Leaderboard efter en deltävling'
+    ? 'Poäng efter en deltävling'
     : completedCount === 2
-    ? 'Leaderboard efter två deltävlingar'
-    : 'Leaderboard efter tre deltävlingar';
+    ? 'Poäng efter två deltävlingar'
+    : 'Poäng efter tre deltävlingar';
 
   // Single-column layout: full width minus padding
   const GRID_PADDING = 12;
@@ -318,7 +318,7 @@ export default function PoangScreen() {
       <View style={styles.container} testID="poang-screen">
         <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={[styles.header, { paddingTop: insets.top + 12 }]}>
           <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
-          <Text style={styles.headerTitle}>Leaderboard</Text>
+          <Text style={styles.headerTitle}>Poäng</Text>
         </LinearGradient>
         <View style={styles.lockContent}>
           <View style={styles.lockCard}>
@@ -338,7 +338,7 @@ export default function PoangScreen() {
     <View style={styles.container} testID="poang-screen">
       <LinearGradient colors={['#1C4F4A', '#2A6B64']} style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <Text style={styles.headerEyebrow}>KANINENS CYKELFEST 2026</Text>
-        <Text style={styles.headerTitle}>Leaderboard</Text>
+        <Text style={styles.headerTitle}>Poäng</Text>
       </LinearGradient>
 
       {error ? (
