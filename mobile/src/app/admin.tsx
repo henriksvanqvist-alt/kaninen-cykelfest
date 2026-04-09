@@ -3125,50 +3125,20 @@ export default function AdminScreen() {
         ) : null}
       </View>
 
-      {/* SOS & NÖDKONTAKTER */}
+      {/* HJÄLP */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.accordionHeader} onPress={() => toggleSection('sos')}>
           <View style={styles.accordionLabelWrap}>
-            <Text style={[styles.accordionLabel, styles.sectionLabelRed]}>SOS & NÖDKONTAKTER</Text>
-            <Text style={styles.accordionSub}>Nödinformation och kontakter för akuta situationer</Text>
+            <Text style={[styles.accordionLabel, styles.sectionLabelRed]}>HJÄLP</Text>
+            <Text style={styles.accordionSub}>Telefonnummer till Kaninen</Text>
           </View>
           {expanded['sos'] ? <ChevronUp size={16} color="#C0392B" /> : <ChevronDown size={16} color="#C0392B" />}
         </TouchableOpacity>
         {expanded['sos'] ? (
           <View style={[styles.card, { gap: 16 }]}>
-            <Text style={styles.phaseLabel}>Redigera nödkontakter och återsamlingsplats i SOS-fliken</Text>
+            <Text style={styles.phaseLabel}>Ange numret som gäster ringer för hjälp</Text>
 
-            <View style={{ height: 1, backgroundColor: '#EDE6D6' }} />
-            <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#C0392B', letterSpacing: 0.5 }}>KONTAKT 1</Text>
-            <Text style={styles.formLabel}>NAMN</Text>
-            <TextInput
-              style={styles.formInput}
-              value={sosContact1Name}
-              onChangeText={setSosContact1Name}
-              placeholder="t.ex. Nödnummer"
-              placeholderTextColor="#B8B0A0"
-            />
-            <Text style={styles.formLabel}>NUMMER</Text>
-            <TextInput
-              style={styles.formInput}
-              value={sosContact1Number}
-              onChangeText={setSosContact1Number}
-              placeholder="t.ex. 112"
-              placeholderTextColor="#B8B0A0"
-              keyboardType="phone-pad"
-            />
-
-            <View style={{ height: 1, backgroundColor: '#EDE6D6' }} />
-            <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#2A5FA8', letterSpacing: 0.5 }}>KONTAKT 2</Text>
-            <Text style={styles.formLabel}>NAMN</Text>
-            <TextInput
-              style={styles.formInput}
-              value={sosContact2Name}
-              onChangeText={setSosContact2Name}
-              placeholder="t.ex. Kaninen"
-              placeholderTextColor="#B8B0A0"
-            />
-            <Text style={styles.formLabel}>NUMMER</Text>
+            <Text style={styles.formLabel}>NUMMER TILL KANINEN</Text>
             <TextInput
               style={styles.formInput}
               value={sosContact2Number}
@@ -3178,47 +3148,19 @@ export default function AdminScreen() {
               keyboardType="phone-pad"
             />
 
-            <View style={{ height: 1, backgroundColor: '#EDE6D6' }} />
-            <Text style={{ fontFamily: 'DMSans_700Bold', fontSize: 13, color: '#C4814A', letterSpacing: 0.5 }}>KONTAKT 3</Text>
-            <Text style={styles.formLabel}>NAMN</Text>
-            <TextInput
-              style={styles.formInput}
-              value={sosContact3Name}
-              onChangeText={setSosContact3Name}
-              placeholder="t.ex. Taxi Uppsala"
-              placeholderTextColor="#B8B0A0"
-            />
-            <Text style={styles.formLabel}>NUMMER</Text>
-            <TextInput
-              style={styles.formInput}
-              value={sosContact3Number}
-              onChangeText={setSosContact3Number}
-              placeholder="t.ex. 08157000"
-              placeholderTextColor="#B8B0A0"
-              keyboardType="phone-pad"
-            />
-
-
             <TouchableOpacity
-              style={{ backgroundColor: '#8B1A1A', borderRadius: 10, paddingVertical: 13, alignItems: 'center', marginTop: 4 }}
+              style={{ backgroundColor: '#1C4F4A', borderRadius: 10, paddingVertical: 13, alignItems: 'center', marginTop: 4 }}
               onPress={async () => {
                 try {
-                  await Promise.all([
-                    api.post('/api/cykelfest/settings/sos_contact1_name', { value: sosContact1Name }),
-                    api.post('/api/cykelfest/settings/sos_contact1_number', { value: sosContact1Number }),
-                    api.post('/api/cykelfest/settings/sos_contact2_name', { value: sosContact2Name }),
-                    api.post('/api/cykelfest/settings/sos_contact2_number', { value: sosContact2Number }),
-                    api.post('/api/cykelfest/settings/sos_contact3_name', { value: sosContact3Name }),
-                    api.post('/api/cykelfest/settings/sos_contact3_number', { value: sosContact3Number }),
-                  ]);
+                  await api.post('/api/cykelfest/settings/sos_contact2_number', { value: sosContact2Number });
                   setSosSaved(true);
                   setTimeout(() => setSosSaved(false), 2500);
                 } catch {
-                  Alert.alert('Fel', 'Kunde inte spara SOS-inställningar.');
+                  Alert.alert('Fel', 'Kunde inte spara hjälp-inställningar.');
                 }
               }}
             >
-              <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 15, color: '#fff' }}>{sosSaved ? '✓ Sparat' : 'Spara SOS-inställningar'}</Text>
+              <Text style={{ fontFamily: 'DMSans_600SemiBold', fontSize: 15, color: '#fff' }}>{sosSaved ? '✓ Sparat' : 'Spara'}</Text>
             </TouchableOpacity>
           </View>
         ) : null}
