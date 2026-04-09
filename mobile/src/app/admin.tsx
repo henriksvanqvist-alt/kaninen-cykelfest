@@ -3114,6 +3114,7 @@ export default function AdminScreen() {
                   { text: 'Avbryt', style: 'cancel' },
                   { text: 'Rensa', style: 'destructive', onPress: async () => {
                     await api.delete('/api/cykelfest/scores');
+  refetch();
                     setScoreInputs({});
                   }},
                 ])}
