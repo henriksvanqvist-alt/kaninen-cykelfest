@@ -191,7 +191,7 @@ export default function KalendariumScreen() {
         showsVerticalScrollIndicator={false}
         testID="timeline-scroll"
       >
-        <Text style={styles.introLabel}>TIDSLINJE · 6 STEG</Text>
+        <Text style={styles.introLabel}>TIDSLINJE</Text>
 
         <View style={styles.card}>
           {STEPS.map((step, index) => {
