@@ -3113,7 +3113,7 @@ export default function AdminScreen() {
                 onPress={() => Alert.alert('Rensa all poäng?', 'Detta tar bort ALL poängdata permanent.', [
                   { text: 'Avbryt', style: 'cancel' },
                   { text: 'Rensa', style: 'destructive', onPress: async () => {
-                    await api.delete('/api/cykelfest/scores');
+                    await api.delete('/api/cykelfest/scores?confirm=true');
   refetch();
                     setScoreInputs({});
                   }},
